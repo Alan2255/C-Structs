@@ -1,3 +1,6 @@
+# For the moment im gonna ignore some test until make it clean
+test*
+
 # Main and executable
 main.c
 main
