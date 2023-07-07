@@ -1,4 +1,5 @@
-# Main executable
+# Main and executable
+main.c
 main
 
 # Makefile
