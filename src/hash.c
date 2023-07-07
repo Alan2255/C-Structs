@@ -88,7 +88,6 @@ void hash_oc_insert(HashOC table, void* data) {
     // Calculate the charge factor and evaluate if needs to rehash
     if ((float) table->stuffed / (float) table->capacity > OVERLOAD_CHARGE_FACTOR) {
 
-        printf("rehaaaaash: %i",table->stuffed+1);
         hash_oc_rehash(table);
     }
 
