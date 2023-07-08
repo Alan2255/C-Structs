@@ -1,5 +1,5 @@
 #include "hash.h"
-
+#include <stdio.h>
 
 /**
  * Hash table
@@ -10,7 +10,7 @@
  * 
  * Open hashing
  * * Separate chaining
- * * Mixed list (to implement)
+ * * Mixed list
  *
  * Closed hashing
  * * Linear probing
@@ -340,51 +340,297 @@ void hash_oc_rehash(HashOC table) {
 
 
 /**
+ * Random method to select another cell (for the moment is linear probing)
+*/
+int guess(int x, int capacity) {
+
+    return (x + 1) % capacity;
+}
+
+
+/**
  * Crete an empty hash table
 */
-HashML hash_ml_create(int capacity, FunctionCopy copy, FunctionCompare compare, FunctionDestroy destroy, FunctionHash hash);
+HashML hash_ml_create(int capacity, FunctionCopy copy, FunctionCompare compare, FunctionDestroy destroy, FunctionHash hash) {
+
+    HashML table = malloc(sizeof(struct _HashMixedList));
+
+    table->array = malloc(sizeof(ML_Cell) * capacity);
+
+    // Initialize the array
+    for (int i = 0; i < capacity; i++) {
+
+        table->array[i] = malloc(sizeof(struct _ML_Cell));
+        table->array[i]->data = NULL;
+        table->array[i]->next = NULL;
+    }
+
+    table->capacity = capacity;
+    table->stuffed = 0;
+    table->copy = copy;
+    table->compare = compare;
+    table->destroy = destroy;
+    table->hash = hash;
+
+    return table;
+}
 
 
 /**
  * Return the capacity of the hash table
  */
-int hash_ml_capacity(HashML table);
+int hash_ml_capacity(HashML table) { return table->capacity; } 
 
 
 /**
  * Return the amount of stuffed cells in the hash table
  */
-int hash_ml_stuffed(HashML table);
+int hash_ml_stuffed(HashML table) { return table->stuffed; }
 
 
 /**
  * Destroy the hash table
  */
-void hash_ml_destroy(HashML table);
+void hash_ml_destroy(HashML table) {
+
+    if (not table) return;
+
+    // Iterate through the table
+    for (int i = 0; i < table->capacity; i++) {
+
+        // If there is data in the cell
+        if(table->array[i]->data != NULL) {
+
+            // Destroy data
+            table->destroy(table->array[i]->data);
+        }
+
+        // Destroy the cell
+        free(table->array[i]);
+    }
+
+    // Destroy the table
+    free(table->array);
+
+    // Destroy the table
+    free(table);
+}
 
 
 /**
  * Insert given data in the table managing collisions with separate chaning
  */
-void hash_ml_insert(HashML table, void* data);
+void hash_ml_insert(HashML table, void* data) {
+
+    if (not table) return;
+
+    // Calculate the charge factor and evaluate if needs to rehash
+    if ((float) table->stuffed / (float) table->capacity > OVERLOAD_CHARGE_FACTOR) {
+
+        // Rehash
+        hash_ml_rehash(table);
+    }
+
+    // Calculate key of data
+    int idx = table->hash(data) % table->capacity;
+
+    // Search data in the table
+    void* dataSearch = hash_ml_search(table, data);
+
+    // If already exist in the table
+    if (dataSearch exist) {
+
+        // Search data
+        ML_Cell cell = table->array[idx];
+        for (;table->compare(cell->data, data) != 0; cell = cell->next);
+
+        // Replace it
+        table->destroy(cell->data);
+        cell->data = table->copy(data);
+    }
+
+    // If doesnt exist in the table
+    else {
+
+        // If the cell its empty
+        if (not table->array[idx]->data) {
+
+            // Add data
+            table->array[idx]->data = table->copy(data);
+            table->stuffed++;
+        }
+
+        // If there is something else
+        else {
+
+            // If we need priority key over the cell
+            int replaced = false;
+            int keyCell = table->hash(table->array[idx]->data) % table->capacity;
+            if (idx != keyCell) {
+
+                // Replace data
+                void* aux = table->array[idx]->data;
+                table->array[idx]->data = table->copy(data);
+                idx = keyCell;
+                data = aux;
+                replaced = true;
+            }
+
+            // Go through the list till the end for linking
+            ML_Cell cell = table->array[idx];
+            for(; cell exist and cell->next; cell = cell->next);
+
+            // Search any other empty cell by linear probing (may be random guessing)
+            int probing = idx;
+            for (; table->array[probing]->data exist; probing = guess(probing, table->capacity));
+
+            // Add and relink
+            cell->next = table->array[probing];
+            table->array[probing]->data = table->copy(data);
+            table->stuffed++;
+            
+            // If it was replaced, we need to destroy the copy
+            if (replaced) {
+
+                table->destroy(data);
+            }
+        }
+    }
+}
 
 
 /**
  * Search given data on the hash table, return data if its found, NULL otherwise
  */
-void* hash_ml_search(HashML table, void* data);
+void* hash_ml_search(HashML table, void* data) {
+
+    if (not table) return NULL;
+    
+    // Calculate key of data
+    int idx = table->hash(data) % table->capacity;
+
+    // Cell to go through the table
+    ML_Cell cell = table->array[idx];
+
+    // Search data
+    for (; cell exist and cell->data exist and table->compare(cell->data, data) != 0; cell = cell->next);
+
+    // Return it it exist
+    return cell exist ? cell->data : NULL;
+}
 
 
 /**
  * Delete given data from the hash table if exist on it
  */
-void hash_ml_delete(HashML table, void* data);
+void hash_ml_delete(HashML table, void* data) {
+
+    if (not table) return;
+
+    // Calculate key of data
+    int idx = table->hash(data) % table->capacity;
+
+    // Search data
+    void* dataSearch = hash_ml_search(table, data);
+
+    // If data exist in the table
+    if (dataSearch exist) {
+
+        // As data is in the table, we know that in the end we are gonna delete it
+        table->stuffed--;
+
+        // If its the first element
+        if (table->compare(data, table->array[idx]->data) == 0) {
+
+            // Delete data
+            table->destroy(table->array[idx]->data);
+            table->array[idx]->data = NULL;
+
+            // If we need to relink
+            if (table->array[idx]->next exist and table->array[idx]->next->data exist) {
+
+                // Cell auxiliar to relink
+                ML_Cell cell = table->array[idx]->next;
+                table->array[idx]->data = cell->data;
+                table->array[idx]->next = cell->next;
+                cell->data = NULL;
+                cell->next = NULL;
+            }
+
+            // If there is no link we put NULL in next cell
+            else {
+
+                table->array[idx]->next = NULL;
+            }
+            
+        }
+
+        // If its not the first element
+        else {
+
+            // Cell to go through the table
+            ML_Cell cell = table->array[idx];
+
+            // Search data
+            for (; table->compare(cell->next->data, data) != 0; cell = cell->next);
+
+            // Auxiliar cell to delete data
+            ML_Cell autodestruction = cell->next;
+            
+            // Relink
+            cell->next = cell->next->next;
+
+            // Delete data
+            table->destroy(autodestruction->data);
+            autodestruction->data = NULL;
+            autodestruction->next = NULL;
+        }
+    }
+}
 
 
 /**
  * Resize the hash table at double of its capacity and rehash each of its elements
  */
-void hash_ml_rehash(HashML table);
+void hash_ml_rehash(HashML table) {
+
+    if (not table) return;
+
+    // Auxiliar old array
+    ML_Cell *oldArray = table->array;
+
+    // Get the new array double size
+    table->capacity = table->capacity * 2;
+    table->array = malloc(sizeof(ML_Cell) * table->capacity);
+
+    // Initialize new array
+    for (int i = 0; i < table->capacity; i++) {
+
+        table->array[i] = malloc(sizeof(struct _ML_Cell));
+        table->array[i]->data = NULL;
+        table->array[i]->next = NULL;
+    }
+
+    // Insert all elements again
+    table->stuffed = 0;
+    for (int i = 0; i < table->capacity / 2; i++) {
+
+        if (oldArray[i]->data exist) {
+
+            // Rehash
+            hash_ml_insert(table, oldArray[i]->data);
+
+            // Destroy data
+            table->destroy(oldArray[i]->data);
+        }
+
+        // Destroy cell
+        free(oldArray[i]);
+    }
+
+    // Destroy old array
+    free(oldArray);
+}
 
 
 /**
@@ -479,7 +725,6 @@ void hash_lp_insert(HashLP table, void* data) {
 
     // Search data in the table
     void* dataSearch = hash_lp_search(table, data);
-
 
     // If data is already in the table
     if (dataSearch exist) {
