@@ -24,7 +24,7 @@ Basic C generic structs
 #### Open hashing
 
 * Separate chaining
-* Mixed list (to implement)
+* Mixed list
 
 #### Closed hashing
 
