@@ -1,2 +1,41 @@
-# C-Structs
+# C Structs
 Basic C generic structs
+
+
+## List
+
+* Linked list 
+* Doubly linked list (to implement)
+* Circular linked list (to implement)
+* Doubly circular linked list (to implement)
+
+## Tree
+
+* Binary tree
+* Binary search tree
+* AVL tree (to implement)
+
+## Heap
+
+* Binary heap
+
+## Hash table
+
+#### Open hashing
+
+* Separate chaining
+* Mixed list (to implement)
+
+#### Closed hashing
+
+* Linear probing
+* Cuadratic probing (to implement)
+* Double hashing (to implement)
+
+## Stack
+
+* (to implement)
+
+## Queue
+
+* (to implement)
