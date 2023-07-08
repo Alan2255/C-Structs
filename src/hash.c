@@ -475,7 +475,7 @@ void hash_lp_insert(HashLP table, void* data) {
     }
 
     // Calculate key of data
-    int idx = table->hash(data) % table->capacity;
+    int probing = table->hash(data) % table->capacity;
 
     // Search data in the table
     void* dataSearch = hash_lp_search(table, data);
@@ -485,9 +485,8 @@ void hash_lp_insert(HashLP table, void* data) {
     if (dataSearch exist) {
 
         // Search data to replace by linear probing
-        int probing = idx;
-        for (; table->array[probing].deleted or table->compare(table->array[probing].data, data) != 0 
-             ; probing = linear_probing(probing, table->capacity));
+        for (; table->array[probing].deleted or table->compare(table->array[probing].data, data) != 0; 
+            probing = linear_probing(probing, table->capacity));
 
         // Replace it
         table->destroy(table->array[probing].data);
@@ -498,9 +497,8 @@ void hash_lp_insert(HashLP table, void* data) {
     else {
 
         // Search an empty or deleted cell by linear probing
-        int probing = idx;
-        for (; table->array[probing].data exist and not table->array[probing].deleted 
-             ; probing = linear_probing(probing, table->capacity));
+        for (; table->array[probing].data exist and not table->array[probing].deleted; 
+            probing = linear_probing(probing, table->capacity));
     
         // Insert data
         table->array[probing].data = table->copy(data); 
@@ -522,9 +520,10 @@ void* hash_lp_search(HashLP table, void* data) {
 
     // Search data by linear probing
     for (int maxProbing = 0; 
-        (table->array[probing].data exist and table->compare(table->array[probing].data, data) != 0) or
-        (table->array[probing].deleted and maxProbing < table->capacity);
-         probing = linear_probing(probing, table->capacity), maxProbing++);
+        maxProbing < table->capacity and
+        ((table->array[probing].data exist and table->compare(table->array[probing].data, data) != 0) or
+        table->array[probing].deleted);
+        probing = linear_probing(probing, table->capacity), maxProbing++);
     
     // Data found
     if (table->array[probing].data exist and table->compare(table->array[probing].data, data) == 0) {
@@ -538,6 +537,7 @@ void* hash_lp_search(HashLP table, void* data) {
     }
 }
 
+
 /**
  * Delete given data from the hash table if exist on it
  */
@@ -550,9 +550,10 @@ void hash_lp_delete(HashLP table, void* data) {
 
     // Search data by linear probing
     for (int maxProbing = 0; 
-        (table->array[probing].data exist and table->compare(table->array[probing].data, data) != 0) or
-        (table->array[probing].deleted and maxProbing < table->capacity);
-         probing = linear_probing(probing, table->capacity), maxProbing++);
+        maxProbing < table->capacity and
+        ((table->array[probing].data exist and table->compare(table->array[probing].data, data) != 0) or
+        table->array[probing].deleted);
+        probing = linear_probing(probing, table->capacity), maxProbing++);
     
     // If it was found
     if (table->array[probing].data exist and table->compare(table->array[probing].data, data) == 0) {
@@ -564,6 +565,7 @@ void hash_lp_delete(HashLP table, void* data) {
         table->stuffed--;
     }
 }   
+
 
 /**
  * Resize the hash table at double of its capacity and rehash each of its elements
