@@ -19,7 +19,7 @@
  * * Mixed list (to implement)
  *
  * Closed hashing
- * * Linear probing (to implement)
+ * * Linear probing
  * * Quadratic probing (to implement) (only change one function)
  * * Double hashing (to implement)
 */
@@ -198,7 +198,7 @@ typedef struct _LP_Cell {
 */
 typedef struct _HashLinearProbing {
 
-    ML_Cell *array;
+    LP_Cell *array;
 
     int capacity;
     int stuffed;

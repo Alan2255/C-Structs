@@ -9,11 +9,11 @@
  * Colission types:
  * 
  * Open hashing
- * * Separate chaining (to implement)
+ * * Separate chaining
  * * Mixed list (to implement)
  *
  * Closed hashing
- * * Linear probing (to implement)
+ * * Linear probing
  * * Quadratic probing (to implement) (only change one function)
  * * Double hashing (to implement)
 */
@@ -166,10 +166,10 @@ void hash_oc_delete(HashOC table, void* data) {
         // one time but anyways the time cost is O(n) whenever we iterate one or two times
         int index_list = 0;
         List node = table->array[idx];
-        for (; node != NULL and table->compare(node->data, data) != 0; node = node->next, index_list++);
+        for (; node exist and table->compare(node->data, data) != 0; node = node->next, index_list++);
 
         // If we found data
-        if (node != NULL) {
+        if (node exist) {
 
             // Delete data
             table->array[idx] = list_delete(table->array[idx], index_list, table->destroy);
@@ -206,7 +206,7 @@ void hash_oc_rehash(HashOC table) {
         if (oldArray[i]) {
 
             // Insert each data in the list
-            for (List node = oldArray[i]; node != NULL; node = node->next) {
+            for (List node = oldArray[i]; node exist; node = node->next) {
 
                 hash_oc_insert(table, node->data);
             }
@@ -278,49 +278,229 @@ void hash_ml_rehash(HashML table);
 
 
 /**
+ * Function to apply linear probing
+*/
+int linear_probing(int x, int capacity) {
+
+    return (x + 1) % capacity;
+}
+
+
+/**
  * Crete an empty hash table
 */
-HashLP hash_lp_create(int capacity, FunctionCopy copy, FunctionCompare compare, FunctionDestroy destroy, FunctionHash hash);
+HashLP hash_lp_create(int capacity, FunctionCopy copy, FunctionCompare compare, FunctionDestroy destroy, FunctionHash hash) {
+    
+    HashLP table = malloc(sizeof(struct _HashLinearProbing));
+    
+    table->array = malloc(sizeof(LP_Cell) * capacity);
+    
+    // Initialize the array
+    for (int i = 0; i < capacity; i++) {
+
+        table->array[i].data = NULL;
+        table->array[i].deleted = false;
+    }
+
+    table->capacity = capacity;
+    table->stuffed = 0;
+    table->copy = copy;
+    table->compare = compare;
+    table->destroy = destroy;
+    table->hash = hash;
+
+    return table;
+}
 
 
 /**
  * Return the capacity of the hash table
  */
-int hash_lp_capacity(HashLP table);
+int hash_lp_capacity(HashLP table) { return table->capacity; }
 
 
 /**
  * Return the amount of stuffed cells in the hash table
  */
-int hash_lp_stuffed(HashLP table);
+int hash_lp_stuffed(HashLP table) { return table->stuffed; }
 
 
 /**
  * Destroy the hash table
  */
-void hash_lp_destroy(HashLP table);
+void hash_lp_destroy(HashLP table) {
+
+    if (not table) return;
+
+    for (int i = 0; i < table->capacity; i++) {
+
+        if (table->array[i].data exist) {
+
+            table->destroy(table->array[i].data);
+        }
+    }
+
+    free(table->array);
+    free(table);
+}
 
 
 /**
  * Insert given data in the table managing collisions with separate chaning
  */
-void hash_lp_insert(HashLP table, void* data);
+void hash_lp_insert(HashLP table, void* data) {
+
+    if (not table) return;
+
+    // Calculate the charge factor and evaluate if needs to rehash
+    if ((float) table->stuffed / (float) table->capacity > OVERLOAD_CHARGE_FACTOR) {
+    
+        // Rehash
+        hash_lp_rehash(table);
+    }
+
+    // Calculate key of data
+    int idx = table->hash(data) % table->capacity;
+
+    // If there is no data in the cell 
+    if (not table->array[idx].data) {
+
+        // Add data
+        table->array[idx].data = table->copy(data);
+        table->stuffed++;
+    }
+
+    // If already has something 
+    else {
+
+        // Search data by linear probing
+        int probing = idx;
+        for (; table->array[probing].data exist and 
+               table->compare(table->array[probing].data, data) != 0 ;
+               probing = linear_probing(probing, table->capacity));
+
+        // If data was found 
+        if (table->array[probing].data exist) {
+
+            // Delete data to replace it without loss memory
+            table->destroy(table->array[probing].data);
+            table->stuffed--;
+        }
+
+        // Add data or mark as not deleted
+        table->array[probing].data = table->copy(data);
+        table->array[probing].deleted = false;
+        table->stuffed++;
+    }
+}
 
 
 /**
  * Search given data on the hash table, return data if its found, NULL otherwise
  */
-void* hash_lp_search(HashLP table, void* data);
+void* hash_lp_search(HashLP table, void* data) {
+
+    if (not table) return NULL;
+
+    // Calculate key of data
+    int idx = table->hash(data) % table->capacity;
+
+    // If there is no data in the cell 
+    if (not table->array[idx].data) {
+
+        return NULL;
+    }
+
+    // If there is something
+    else {
+
+        // Search data by linear probing
+        int probing = idx;
+        for (; table->array[probing].data exist and 
+               table->compare(table->array[probing].data, data) != 0 ;
+               probing = linear_probing(probing, table->capacity));
+
+
+        // Return if isnt deleted
+        return table->array[probing].deleted ? NULL : table->array[probing].data;
+    }
+}
 
 
 /**
  * Delete given data from the hash table if exist on it
  */
-void hash_lp_delete(HashLP table, void* data);
+void hash_lp_delete(HashLP table, void* data) {
+
+    if (not table) return;
+
+    // Calculate key of data
+    int idx = table->hash(data) % table->capacity;
+
+    // If there is no data in the cell 
+    if (not table->array[idx].data) {
+
+        return;
+    }
+
+    // If there is something
+    else {
+
+        // Search data by linear probing
+        int probing = idx;
+        for (; table->array[probing].data exist and 
+               table->compare(table->array[probing].data, data) != 0 ;
+               probing = linear_probing(probing, table->capacity));
+
+
+        // If it was found
+        if (table->array[probing].data exist) {
+
+            // Mark as deleted
+            table->array[probing].deleted = true;
+            table->stuffed--;
+        }
+    }   
+}
 
 
 /**
  * Resize the hash table at double of its capacity and rehash each of its elements
  */
-void hash_lp_rehash(HashLP table);
+void hash_lp_rehash(HashLP table) {
 
+    if (not table) return;
+
+    LP_Cell *oldArray = table->array;
+
+    // Ask memory for the new double size array
+    table->capacity = table->capacity * 2;
+    table->array = malloc(sizeof(LP_Cell) * table->capacity);
+
+    // Initialize the new array
+    for (int i = 0; i < table->capacity; i++) {
+
+        table->array[i].data = NULL;
+        table->array[i].deleted = false;
+    }
+
+    // Rehash
+    table->stuffed = 0;
+    for (int i = 0; i < table->capacity / 2; i++) {
+
+        // If there is data not deleted
+        if (oldArray[i].data exist and not oldArray[i].deleted) {
+
+            // Rehash
+            hash_lp_insert(table, oldArray[i].data);
+        }
+
+        // Anyway we destroy the deleted data
+        if (oldArray[i].data exist) {
+
+            table->destroy(oldArray[i].data);
+        }
+    }
+
+    free(oldArray);
+}
