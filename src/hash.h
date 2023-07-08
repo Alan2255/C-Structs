@@ -2,7 +2,6 @@
 #define __HASH_H__
 
 #include <stdlib.h>
-#include "list.h"
 #include "void.h"
 #include "sugar.h"
 
@@ -29,6 +28,18 @@
  * Overload charge factor to decide when to rehash
 */
 #define OVERLOAD_CHARGE_FACTOR 0.75
+
+
+/**
+ * Built in linked list
+*/
+typedef struct _LNode {
+
+    void* data;
+    struct _LNode *next;
+
+} *List;
+
 
 /**
  * Open hashing: separate chaining

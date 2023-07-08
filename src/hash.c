@@ -19,6 +19,121 @@
 */
 
 
+
+/**
+ * Built in linked list for separate chaining
+*/
+
+/**
+ * Create an empty linked list
+*/
+
+List list_create() { return NULL; }
+
+
+/**
+ * Add data to the begin of the list
+*/
+List list_add(List list, void* data, FunctionCopy copy) {
+
+    List newNode = malloc(sizeof(struct _LNode));
+    newNode->data = copy(data);
+    newNode->next = list;
+
+    return newNode;
+}
+
+
+/**
+ * Destroy the list
+*/
+void list_destroy(List list, FunctionDestroy destroy) {
+
+    if (not list) return;
+
+    list_destroy(list->next, destroy);
+    
+    destroy(list->data);
+    free(list);
+}
+
+
+/**
+ * Print the list
+*/
+void list_print(List list, FunctionVisit visit) {
+
+    if (not list) return;
+
+    visit(list->data);
+    list_print(list->next, visit);
+}
+
+
+/**
+ * Delete data at some given index in the list
+*/
+List list_delete(List list, int index, FunctionDestroy destroy) {
+
+    if (not list) return NULL;
+
+    // Node to delete data
+    List nodeDelete = list;
+
+    // If we want to delete the first node
+    if (index == 0) {
+
+        list = list->next;
+        destroy(nodeDelete->data);
+        free(nodeDelete);
+
+        return list;
+    }
+
+    // Otherwise we want to move through the list till the index (or the end)
+    List node = list;
+    for (int i = 0; i < index-1 and node->next != NULL; i++, node = node->next);
+
+    // If we reach the index
+    if (node->next != NULL) {
+
+        nodeDelete = node->next;
+        node->next = node->next->next; // Relink
+        
+        destroy(nodeDelete->data);
+        free(nodeDelete);
+    }
+
+    return list;
+}
+
+
+/**
+ * Search data in the list, return data (pointer on list) if its in, NULL otherwise
+*/
+void* list_search_data(List list, void* data, FunctionCompare compare) {
+
+    if (not list) return NULL;
+
+    if (compare(list->data, data) == 0) return list->data;
+    
+    else return list_search_data(list->next, data, compare);
+}
+
+
+/**
+ * Search data in the list, return the node of data if its on it, NULL otherwise
+*/
+List list_search_node(List list, void* data, FunctionCompare compare) {
+
+    if (not list) return NULL;
+
+    if (compare(list->data, data) == 0) return list;
+    
+    else return list_search_node(list->next, data, compare);
+}
+
+
 /**
  * Open hashing: separate chaining
 */
