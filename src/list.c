@@ -6,7 +6,7 @@
  * 
  * Linked list
  * 
- * Doubly linked list (to implement)
+ * Doubly linked list
  *
  * Circular linked list (to implement)
  * 
@@ -183,4 +183,146 @@ List list_search_node(List list, void* data, FunctionCompare compare) {
     if (compare(list->data, data) == 0) return list;
     
     else return list_search_node(list->next, data, compare);
+}
+
+
+/**
+ * Doubly linked list
+*/
+
+/**
+ * Create an empty doubly list
+*/
+DList dlist_create() {
+
+    DList newList = malloc(sizeof(struct _DList));
+    
+    newList->begin = NULL;
+    newList->end = NULL;
+
+    return newList;
+}
+
+
+/**
+ * Add data to the doubly list
+*/
+DList dlist_add(DList list, void* data, DoublyOrder order, FunctionCopy copy) {
+
+    // Create a new node
+    DNode newNode = malloc(sizeof(struct _DNode));
+    newNode->data = copy(data);
+    newNode->next = NULL;
+    newNode->prev = NULL;
+
+    // If list its empty
+    if (not list->begin) {
+
+        list->begin = newNode;
+        list->end = newNode;
+    }
+
+    // Add in the end
+    else if (order == FORDWARD) {
+ 
+        list->end->next = newNode;
+        newNode->prev = list->end;
+        list->end = newNode;        
+    }
+
+    // Add in the begin
+    else if (order == BACKWARD) {
+
+        list->begin->prev = newNode;
+        newNode->next = list->begin;
+        list->begin = newNode;
+    }
+
+    return list;
+}
+
+
+/**
+ * Destroy the doubly list
+*/
+void dlist_destroy_aux(DNode node, FunctionDestroy destroy) {
+
+    if (not node) return;
+
+    dlist_destroy_aux(node->next, destroy);
+
+    destroy(node->data);
+    free(node);
+}
+
+
+/**
+ * Destroy the doubly list
+*/
+void dlist_destroy(DList list, FunctionDestroy destroy) {
+
+    if (not list) return;
+
+    dlist_destroy_aux(list->begin, destroy);
+    free(list);
+}
+
+
+/**
+ * Print the list
+*/
+void dlist_print_aux(DNode node, DoublyOrder order, FunctionVisit visit) {
+
+    if (not node) return;
+
+    visit(node->data);
+
+    // Print in the given order
+    if (order == FORDWARD)
+        dlist_print_aux(node->next, order, visit);
+    else 
+        dlist_print_aux(node->prev, order, visit);
+}
+
+
+/**
+ * Print the doubly list
+*/
+void dlist_print(DList list, DoublyOrder order, FunctionVisit visit) {
+
+    if (not list) return;
+
+    // Print fordward
+    if (order == FORDWARD) {
+
+        dlist_print_aux(list->begin, order, visit);
+    }
+
+    // Print backward
+    else if (order == BACKWARD) {
+
+        dlist_print_aux(list->end, order, visit);
+    }
+}
+
+
+/**
+ * Return the length of the dlist
+*/
+int dlist_length_aux(DNode node) {
+
+    if (not node) return 0;
+
+    return 1 + list_length(node->next);
+}
+
+
+/**
+ * Return the length of the dlist
+*/
+int dlist_length(DList list) {
+
+    if (not list) return 0;
+
+    return dlist_length_aux(list->begin);
 }

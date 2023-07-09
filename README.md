@@ -5,7 +5,7 @@ Basic C generic structs
 ## List
 
 * Linked list 
-* Doubly linked list (to implement)
+* Doubly linked list
 * Circular linked list (to implement)
 * Doubly circular linked list (to implement)
 

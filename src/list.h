@@ -10,7 +10,7 @@
  * 
  * Linked list
  * 
- * Doubly linked list (to implement)
+ * Doubly linked list
  *
  * Circular linked list (to implement)
  * 
@@ -99,25 +99,66 @@ List list_search_node(List, void*, FunctionCompare);
 /**
  * Doubly linked list
 */
+
+typedef enum {
+
+    FORDWARD,
+    BACKWARD,
+
+} DoublyOrder;
+
+
 typedef struct _DNode {
     
     void* data;
     struct _DNode* prev;
     struct _DNode* next;
 
+} *DNode;
+
+
+typedef struct _DList {
+
+    DNode begin;
+    DNode end;    
+
 } *DList;
 
 
 /**
- * Circular linked list
+ * Create an empty doubly list
 */
-typedef List CList;
+DList dlist_create();
 
 
 /**
- * Create an empty circular linked list
+ * Add data to the begin of the doubly list
 */
-CList clist_create();
+DList dlist_add(DList, void*, DoublyOrder, FunctionCopy);
+
+
+/**
+ * Destroy the doubly list
+*/
+void dlist_destroy(DList, FunctionDestroy);
+
+
+/**
+ * Print the doubly list
+*/
+void dlist_print(DList, DoublyOrder, FunctionVisit);
+
+
+/**
+ * Return the length of the dlist
+*/
+int dlist_length(DList);
+
+
+/**
+ * Circular linked DList
+*/
+typedef List CList;
 
 
 /**
