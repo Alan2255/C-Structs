@@ -458,7 +458,7 @@ ATree avl_fix(ATree tree) {
             tree = avl_rotation_left(tree);
         }
 
-        // Fix inside left
+        // Fix inside right
         else {
 
             // Double rotation

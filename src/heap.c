@@ -2,7 +2,7 @@
 
 
 /**
- * Create a heap with the given capacity and 
+ * Create a heap with the given capacity
 */
 BHeap bheap_create(int capacity, FunctionCompare compare, PriorityType type) {
     
