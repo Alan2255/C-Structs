@@ -4,10 +4,10 @@ Basic C generic structs
 
 ## List
 
-* Linked list 
+* Linked list
 * Doubly linked list
 * Circular linked list
-* Doubly circular linked list (to implement)
+* Doubly circular linked list
 
 ## Tree
 
