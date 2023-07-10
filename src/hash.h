@@ -190,18 +190,42 @@ void hash_ml_rehash(HashML);
 
 
 /**
- * Closed hashing: linear probing
+ * Closed hashing: probing
 */
+
+
+/**
+ * Constant primes to probing
+*/
+#define C1 7
+#define C2 19
+
+// For double hashing, may take a prime lower than the table size
+// Also may be co-prime with the table size
+#define CO_PRIME 31
+
+/**
+ * Type of probing
+*/
+typedef enum {
+
+    LINEAR,
+    CUADRATIC,
+    DOUBLE_HASHING,
+    // RANDOM,
+
+} ProbingType;
+
 
 /**
  * Cell
 */
-typedef struct _LP_Cell {
+typedef struct _P_Cell {
 
     void* data;
     int deleted;
 
-} LP_Cell;
+} P_Cell;
 
 
 /**
@@ -209,7 +233,7 @@ typedef struct _LP_Cell {
 */
 typedef struct _HashLinearProbing {
 
-    LP_Cell *array;
+    P_Cell *array;
 
     int capacity;
     int stuffed;
@@ -218,56 +242,57 @@ typedef struct _HashLinearProbing {
     FunctionCompare compare;
     FunctionDestroy destroy;
     FunctionHash hash;
+    ProbingType probing;
 
-} *HashLP;
+} *HashP;
 
 
 /**
  * Crete an empty hash table
 */
-HashLP hash_lp_create(int, FunctionCopy, FunctionCompare, FunctionDestroy, FunctionHash);
+HashP hash_p_create(int, FunctionCopy, FunctionCompare, FunctionDestroy, FunctionHash, ProbingType);
 
 
 /**
  * Return the capacity of the hash table
  */
-int hash_lp_capacity(HashLP);
+int hash_p_capacity(HashP);
 
 
 /**
  * Return the amount of stuffed cells in the hash table
  */
-int hash_lp_stuffed(HashLP);
+int hash_p_stuffed(HashP);
 
 
 /**
  * Destroy the hash table
  */
-void hash_lp_destroy(HashLP);
+void hash_p_destroy(HashP);
 
 
 /**
  * Insert given data in the table managing collisions with separate chaning
  */
-void hash_lp_insert(HashLP, void*);
+void hash_p_insert(HashP, void*);
 
 
 /**
  * Search given data on the hash table, return data if its found, NULL otherwise
  */
-void* hash_lp_search(HashLP, void*);
+void* hash_p_search(HashP, void*);
 
 
 /**
  * Delete given data from the hash table if exist on it
  */
-void hash_lp_delete(HashLP, void*);
+void hash_p_delete(HashP, void*);
 
 
 /**
  * Resize the hash table at double of its capacity and rehash each of its elements
  */
-void hash_lp_rehash(HashLP);
+void hash_p_rehash(HashP);
 
 
 #endif

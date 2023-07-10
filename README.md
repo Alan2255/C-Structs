@@ -30,8 +30,8 @@ Basic C generic structs
 #### Closed hashing
 
 * Linear probing
-* Cuadratic probing (to implement)
-* Double hashing (to implement)
+* Cuadratic probing
+* Double hashing
 
 ## Stack
 
