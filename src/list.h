@@ -12,7 +12,7 @@
  * 
  * Doubly linked list
  *
- * Circular linked list (to implement)
+ * Circular linked list
  * 
  * Doubly circular linked list (to implement)
 */
@@ -105,7 +105,7 @@ typedef enum {
     FORDWARD,
     BACKWARD,
 
-} DoublyOrder;
+} ListOrder;
 
 
 typedef struct _DNode {
@@ -134,7 +134,7 @@ DList dlist_create();
 /**
  * Add data to the begin of the doubly list
 */
-DList dlist_add(DList, void*, DoublyOrder, FunctionCopy);
+DList dlist_add(DList, void*, ListOrder, FunctionCopy);
 
 
 /**
@@ -146,7 +146,7 @@ void dlist_destroy(DList, FunctionDestroy);
 /**
  * Print the doubly list
 */
-void dlist_print(DList, DoublyOrder, FunctionVisit);
+void dlist_print(DList, ListOrder, FunctionVisit);
 
 
 /**
@@ -156,15 +156,78 @@ int dlist_length(DList);
 
 
 /**
- * Circular linked DList
+ * Circular linked list
 */
-typedef List CList;
+typedef struct _CList {
 
+    List begin;
+    List end;
+
+} *CList;
+
+
+/**
+ * Create an empty doubly list
+*/
+CList clist_create();
+
+
+/**
+ * Add data to the begin of the doubly list
+*/
+CList clist_add(CList, void*, ListOrder, FunctionCopy);
+
+
+/**
+ * Destroy the doubly list
+*/
+void clist_destroy(CList, FunctionDestroy);
+
+
+/**
+ * Print the doubly list
+*/
+void clist_print(CList, FunctionVisit);
+
+
+/**
+ * Return the length of the dlist
+*/
+int clist_length(CList);
 
 /**
  * Doubly circular linked list
 */
-typedef DList DCList;
+typedef DNode DCList;
+
+/**
+ * Create an empty doubly list
+*/
+DCList dclist_create();
+
+
+/**
+ * Add data to the begin of the doubly list
+*/
+DCList dclist_add(DCList, void*, ListOrder, FunctionCopy);
+
+
+/**
+ * Destroy the doubly list
+*/
+void dclist_destroy(DCList, FunctionDestroy);
+
+
+/**
+ * Print the doubly list
+*/
+void dclist_print(DCList, ListOrder, FunctionVisit);
+
+
+/**
+ * Return the length of the dlist
+*/
+int dclist_length(DCList);
 
 
 #endif

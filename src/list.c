@@ -8,7 +8,7 @@
  * 
  * Doubly linked list
  *
- * Circular linked list (to implement)
+ * Circular linked list
  * 
  * Doubly circular linked list (to implement)
 */
@@ -207,7 +207,7 @@ DList dlist_create() {
 /**
  * Add data to the doubly list
 */
-DList dlist_add(DList list, void* data, DoublyOrder order, FunctionCopy copy) {
+DList dlist_add(DList list, void* data, ListOrder order, FunctionCopy copy) {
 
     // Create a new node
     DNode newNode = malloc(sizeof(struct _DNode));
@@ -271,7 +271,7 @@ void dlist_destroy(DList list, FunctionDestroy destroy) {
 /**
  * Print the list
 */
-void dlist_print_aux(DNode node, DoublyOrder order, FunctionVisit visit) {
+void dlist_print_aux(DNode node, ListOrder order, FunctionVisit visit) {
 
     if (not node) return;
 
@@ -288,7 +288,7 @@ void dlist_print_aux(DNode node, DoublyOrder order, FunctionVisit visit) {
 /**
  * Print the doubly list
 */
-void dlist_print(DList list, DoublyOrder order, FunctionVisit visit) {
+void dlist_print(DList list, ListOrder order, FunctionVisit visit) {
 
     if (not list) return;
 
@@ -307,18 +307,18 @@ void dlist_print(DList list, DoublyOrder order, FunctionVisit visit) {
 
 
 /**
- * Return the length of the dlist
+ * Return the length of the doubly list
 */
 int dlist_length_aux(DNode node) {
 
     if (not node) return 0;
 
-    return 1 + list_length(node->next);
+    return 1 + dlist_length_aux(node->next);
 }
 
 
 /**
- * Return the length of the dlist
+ * Return the length of the dobuly list
 */
 int dlist_length(DList list) {
 
@@ -326,3 +326,149 @@ int dlist_length(DList list) {
 
     return dlist_length_aux(list->begin);
 }
+
+
+/**
+ * Circular linked list
+*/
+
+/**
+ * Create an empty circular linked list
+*/
+CList clist_create() {
+
+    CList newList = malloc(sizeof(struct _CList));
+
+    newList->begin = NULL;
+    newList->end = NULL;
+
+    return newList;
+}
+
+CList clist_add(CList list, void* data, ListOrder order, FunctionCopy copy) {
+
+    // Create a new node
+    List newNode = malloc(sizeof(struct _LNode));
+    newNode->data = copy(data);
+    newNode->next = NULL;
+
+    // If list its empty
+    if (not list->begin) {
+
+        list->begin = newNode;
+        list->end = newNode;
+    }
+
+    // Add in the end
+    else if (order == FORDWARD) {
+ 
+        list->end->next = newNode;
+        list->end = newNode;        
+    }
+
+    // Add in the begin
+    else if (order == BACKWARD) {
+
+        newNode->next = list->begin;
+        list->begin = newNode;
+    }
+
+    return list;
+}
+
+
+/**
+ * Destroy the circular linked list
+*/
+void clist_destroy(CList list, FunctionDestroy destroy) {
+
+    if (not list) return;
+
+    if (list->begin exist) {
+    
+        List start = list->begin, nodeDelete;
+        for (; start != list->end ;) {
+
+            nodeDelete = start;
+            start = start->next;
+            destroy(nodeDelete->data);
+            free(nodeDelete);
+        }
+
+        if (list->end exist) {
+
+            destroy(list->end->data);
+            free(list->end);
+        }
+
+    }
+
+    free(list);
+}
+
+
+/**
+ * Print the circular linked list
+*/
+void clist_print(CList list, FunctionVisit visit) {
+
+    if (not list) return;
+
+    List start = list->begin;
+    for (; start != list->end; start = start->next) {
+
+        visit(start->data);
+    }
+
+    if (list->end exist)
+        visit(list->end->data);
+}
+
+
+/**
+ * Return the length of the circular linked
+*/
+int clist_length(CList list) {
+
+    if (not list) return 0;
+
+    int lenght = 1;
+    List start = list->begin;
+    for (; start != list->end; start = start->next, lenght++);
+    
+    return lenght;
+}
+
+
+/**
+ * Doubly circular linked list
+*/
+
+/**
+ * Create an empty doubly circular linked list
+*/
+DCList dclist_create();
+
+
+/**
+ * Add data to the begin of the doubly circular linked list
+*/
+DCList dclist_add(DCList list, void* data, ListOrder order, FunctionCopy copy);
+
+
+/**
+ * Destroy the doubly circular linked list
+*/
+void dclist_destroy(DCList list, FunctionDestroy destroy);
+
+
+/**
+ * Print the doubly circular linked list
+*/
+void dclist_print(DCList list, ListOrder order, FunctionVisit visit);
+
+
+/**
+ * Return the length of the doubly circular linked
+*/
+int dclist_length(DCList list);
