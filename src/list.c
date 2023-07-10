@@ -10,7 +10,7 @@
  *
  * Circular linked list
  * 
- * Doubly circular linked list (to implement)
+ * Doubly circular linked list
 */
 
 
@@ -432,11 +432,11 @@ int clist_length(CList list) {
 
     if (not list) return 0;
 
-    int lenght = 1;
+    int length = 1;
     List start = list->begin;
-    for (; start != list->end; start = start->next, lenght++);
+    for (; start != list->end; start = start->next, length++);
     
-    return lenght;
+    return length;
 }
 
 
@@ -445,30 +445,118 @@ int clist_length(CList list) {
 */
 
 /**
- * Create an empty doubly circular linked list
+ * Create an empty doubly circular list
 */
-DCList dclist_create();
+DCList dclist_create() { return NULL; }
 
 
 /**
- * Add data to the begin of the doubly circular linked list
+ * Add data in some order to the doubly circular list
 */
-DCList dclist_add(DCList list, void* data, ListOrder order, FunctionCopy copy);
+DCList dclist_add(DCList list, void* data, ListOrder order, FunctionCopy copy) {
+
+    DCList newNode = malloc(sizeof(struct _DNode));
+
+    newNode->data = copy(data);
+    
+    if (list exist) {
+        
+        newNode->next = list;
+        newNode->prev = list->prev;
+        list->prev->next = newNode;
+        list->prev = newNode;
+        
+        if (order == BACKWARD) {
+        
+           list = list->prev; 
+        }
+        
+        return list;
+    }
+    
+    else {
+    
+        newNode->next = newNode;
+        newNode->prev = newNode;
+        
+        return newNode;
+    }
+}
 
 
 /**
- * Destroy the doubly circular linked list
+ * Print the doubly circular list
 */
-void dclist_destroy(DCList list, FunctionDestroy destroy);
+void dclist_print(DCList list, ListOrder order, FunctionVisit visit) {
+
+    if (not list) return;
+    
+    DNode stop;
+    
+    // Print fordward
+    if (order == FORDWARD) {
+    
+        stop = list->prev;
+        
+        for (;list != stop; list = list->next) {
+        
+            visit(list->data);
+        }
+        
+        visit(list->data);
+    }
+    
+    // Print backward
+    else if (order == BACKWARD) {
+    
+        stop = list;
+        list = list->prev;
+        
+        for (;list != stop; list = list->prev) {
+        
+            visit(list->data);
+        }
+        
+        visit(list->data);
+    }
+}
 
 
 /**
- * Print the doubly circular linked list
+ * Destroy the doubly circular list
 */
-void dclist_print(DCList list, ListOrder order, FunctionVisit visit);
+void dclist_destroy(DCList list, FunctionDestroy destroy) {
+
+    if (not list) return;
+    
+    DNode stop = list->prev, node;
+        
+    for (;list != stop;) {
+
+        // Auxiliar node to destroy the past element
+        node = list;
+        list = list->next;
+        
+        destroy(node->data);
+        free(node); 
+    }
+    
+    destroy(list->data);
+    free(list);
+}
 
 
 /**
- * Return the length of the doubly circular linked
+ * Return the length of the doubly circular list
 */
-int dclist_length(DCList list);
+int dclist_length(DCList list) {
+
+    if (not list) return 0;
+
+    int length = 1;
+    DNode stop = list->prev;
+    for (; list != stop; list = list->next, length++);
+    
+    return length;
+
+}

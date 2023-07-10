@@ -14,7 +14,7 @@
  *
  * Circular linked list
  * 
- * Doubly circular linked list (to implement)
+ * Doubly circular linked list
 */
 
 
@@ -195,37 +195,39 @@ void clist_print(CList, FunctionVisit);
 */
 int clist_length(CList);
 
+
 /**
  * Doubly circular linked list
 */
 typedef DNode DCList;
 
+
 /**
- * Create an empty doubly list
+ * Create an empty doubly circular list
 */
 DCList dclist_create();
 
 
 /**
- * Add data to the begin of the doubly list
+ * Add data in some order to the doubly circular list
 */
 DCList dclist_add(DCList, void*, ListOrder, FunctionCopy);
 
 
 /**
- * Destroy the doubly list
-*/
-void dclist_destroy(DCList, FunctionDestroy);
-
-
-/**
- * Print the doubly list
+ * Print the doubly circular list
 */
 void dclist_print(DCList, ListOrder, FunctionVisit);
 
 
 /**
- * Return the length of the dlist
+ * Destroy the doubly circular list
+*/
+void dclist_destroy(DCList, FunctionDestroy);
+
+
+/**
+ * Return the length of the doubly circular list
 */
 int dclist_length(DCList);
 
