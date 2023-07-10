@@ -10,13 +10,13 @@
  * Basic functions to manage string with void*
 */
 
-void* copy(void*);
+void* copy_string(void*);
 
-void destroy(void*);
+void destroy_string(void*);
 
-void visit(void*);
+void visit_string(void*);
 
-int compare(void*, void*);
+int compare_string(void*, void*);
 
 
 #endif

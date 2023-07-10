@@ -5,7 +5,7 @@
  * Basic functions to manage int with void*
 */
 
-void* copy(void *data) {  
+void* copy_int(void *data) {  
 
   void* copy = malloc(sizeof(int));
   // *(int*)copy = *(int*)data;
@@ -15,13 +15,13 @@ void* copy(void *data) {
 }
 
 
-void destroy(void *data) {
+void destroy_int(void *data) {
 
   free(data);
 }
 
 
-void visit(void *data) {
+void visit_int(void *data) {
 
   if(data == NULL) {
     printf("NULL ");
@@ -31,7 +31,7 @@ void visit(void *data) {
 }
 
 
-int compare(void* a, void* b) {
+int compare_int(void* a, void* b) {
 
   if(*((int*)a) > *((int*)b)) return 1;
   if(*((int*)a) < *((int*)b)) return -1;

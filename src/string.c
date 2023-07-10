@@ -5,7 +5,7 @@
  * Basic functions to manage string with void*
 */
 
-void* copy(void *data) {  
+void* copy_string(void *data) {  
 
   char* copy = malloc(sizeof(char) * (strlen((char*) data) + 1));
   
@@ -15,13 +15,13 @@ void* copy(void *data) {
 }
 
 
-void destroy(void *data) {
+void destroy_string(void *data) {
 
   free(data);
 }
 
 
-void visit(void *data) {
+void visit_string(void *data) {
 
   if(data == NULL) {
     printf("NULL ");
@@ -31,7 +31,7 @@ void visit(void *data) {
 }
 
 
-int compare(void* a, void* b) {
+int compare_string(void* a, void* b) {
 
   return strcmp((char*) a, (char*) b);
 }

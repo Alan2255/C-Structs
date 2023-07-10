@@ -10,13 +10,13 @@
  * Basic functions to manage int with void*
 */
 
-void* copy(void*);
+void* copy_int(void*);
 
-void destroy(void*);
+void destroy_int(void*);
 
-void visit(void*);
+void visit_int(void*);
 
-int compare(void*, void*);
+int compare_int(void*, void*);
 
 
 #endif
