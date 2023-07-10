@@ -19,8 +19,8 @@
  *
  * Closed hashing
  * * Linear probing
- * * Quadratic probing (to implement) (only change one function)
- * * Double hashing (to implement)
+ * * Quadratic probing 
+ * * Double hashing
 */
 
 

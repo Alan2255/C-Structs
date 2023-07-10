@@ -14,7 +14,7 @@
  * 
  * AVL tree
  * 
- * Tree (to implement)
+ * Tree
 */
 
 
