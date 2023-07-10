@@ -10,9 +10,9 @@
  * 
  * Binary tree
  * 
- * Binary search tree (to implement)
+ * Binary search tree
  * 
- * AVL tree (to implement)
+ * AVL tree
  * 
  * Tree (to implement)
 */
@@ -120,13 +120,58 @@ void bstree_delete(BSTree, void*);
 */
 typedef struct _ANode {
 
-    void* data;
-    int height;
-    struct _ANode* left;
-    struct _ANode* right;
+  void* data;
+  int height;
+  struct _ANode* left;
+  struct _ANode* right;
+
+} *ATree;
+
+typedef struct _AVLTree {
+
+  ATree root;
+
+  FunctionCopy copy;
+  FunctionDestroy destroy;
+  FunctionCompare compare;
 
 } *AVLTree;
 
+
+/**
+ * Create an empty AVL search tree
+*/
+AVLTree avl_create(FunctionCopy, FunctionDestroy, FunctionCompare);
+
+
+/**
+ * Insert data in the AVL tree
+*/
+void avl_insert(AVLTree, void*);
+
+
+/**
+ * Destroy the AVL tree
+*/
+void avl_destroy(AVLTree);
+
+
+/**
+ * Search data in the AVL tree, return true if finds it and false otherwise
+*/
+int avl_search_bool(AVLTree, void*);
+
+
+/**
+ * Delete data from the AVL tree if exist in it
+*/
+void avl_delete(AVLTree, void*);
+
+
+/**
+ * Print the avl tree
+*/
+void avl_travel(AVLTree, BTreeOrder, FunctionVisit);
 
 
 #endif
