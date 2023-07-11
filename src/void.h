@@ -1,7 +1,5 @@
-// Author: Alan Hergenreder
 #ifndef __VOID_H__
 #define __VOID_H__
-#include <stdlib.h>
 
 typedef void *(*FunctionCopy)(void*);
 typedef void (*FunctionDestroy)(void*);
