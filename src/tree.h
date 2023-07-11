@@ -2,6 +2,7 @@
 #define __TREE_H__
 
 #include <stdlib.h>
+#include <stdio.h>
 #include "void.h"
 #include "sugar.h"
 
@@ -116,7 +117,7 @@ void bstree_delete(BSTree, void*);
 
 
 /**
- * AVL tree
+ * AVL node
 */
 typedef struct _ANode {
 
@@ -127,10 +128,13 @@ typedef struct _ANode {
 
 } *ATree;
 
+
+/**
+ * AVL tree
+*/
 typedef struct _AVLTree {
 
   ATree root;
-
   FunctionCopy copy;
   FunctionDestroy destroy;
   FunctionCompare compare;
@@ -172,6 +176,50 @@ void avl_delete(AVLTree, void*);
  * Print the avl tree
 */
 void avl_travel(AVLTree, BTreeOrder, FunctionVisit);
+
+
+/**
+ * General node
+*/
+typedef struct _GNode {
+
+  void* data;
+  struct _GNode* child;
+  struct _GNode* brother;
+
+} *GNode;
+
+
+/**
+ * General tree
+*/
+typedef struct _GTree {
+
+  GNode root;
+  FunctionCopy copy;
+  FunctionDestroy destroy;
+  FunctionCompare compare;
+  FunctionVisit visit;
+
+} *GTree;
+
+
+/**
+ * Create an empty general tree
+*/
+GTree gtree_create(FunctionCopy, FunctionDestroy, FunctionCompare, FunctionVisit);
+
+
+/**
+ * Destroy the general tree
+*/
+void gtree_destroy(GTree);
+
+
+/**
+ * Print the general tree by level
+*/
+void gtree_print(GTree);
 
 
 #endif

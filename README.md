@@ -20,7 +20,7 @@ Basic C generic structs
 * Binary tree
 * Binary search tree
 * AVL tree
-* General tree (to implement)
+* General tree
 
 ## Heap
 

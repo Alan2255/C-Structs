@@ -780,3 +780,90 @@ void avl_travel(AVLTree tree, BTreeOrder order, FunctionVisit visit) {
 
     avl_travel_aux(tree->root, order, visit);
 }
+
+
+/**
+ * General tree
+*/
+
+/**
+ * Create an empty general tree
+*/
+GTree gtree_create(FunctionCopy copy, FunctionDestroy destroy, FunctionCompare compare, FunctionVisit visit) {
+
+    GTree newTree = malloc(sizeof(struct _GTree));
+
+    newTree->root = NULL;
+    newTree->copy = copy;
+    newTree->destroy = destroy;
+    newTree->compare = compare;
+    newTree->visit = visit;
+
+    return newTree;
+}
+
+
+/**
+ * Destroy the general tree
+*/
+void gtree_destroy_aux(GNode tree, FunctionDestroy destroy) {
+
+    if (not tree) return;
+
+    gtree_destroy_aux(tree->child, destroy);
+    gtree_destroy_aux(tree->brother, destroy);
+    
+    destroy(tree->data);
+    free(tree);
+}
+
+
+/**
+ * Destroy the general tree
+*/
+void gtree_destroy(GTree tree) {
+
+    if (not tree) return;
+
+    // Destroy all nodes
+    gtree_destroy_aux(tree->root, tree->destroy);
+    free(tree);
+}
+
+
+/**
+ * Print the general tree
+*/
+void gtree_print_aux(GNode tree, FunctionVisit visit) {
+
+    if (not tree) return;
+    if (not tree->child) return;
+
+    visit(tree->data);
+    printf("- ");
+
+    // Print all the childs
+    for (GNode kid = tree->child; kid exist; kid = kid->brother) {
+
+        visit(kid->data);
+    }
+    puts("");
+
+    // Then for each child, do the same
+    for (GNode kid = tree->child; kid exist; kid = kid->brother) {
+
+        gtree_print_aux(kid, visit);
+    }
+
+}
+
+
+/**
+ * Print the general tree
+*/
+void gtree_print(GTree tree) {
+
+    if (not tree) return;
+
+    gtree_print_aux(tree->root, tree->visit);
+}
