@@ -1,3 +1,8 @@
+
+![void](https://img.shields.io/badge/void*-gray)
+![valgrind](https://img.shields.io/badge/Valgrind-pass-green)
+![mit](https://img.shields.io/badge/License-MIT-gold)
+
 # C Structs
 Basic C generic structs
 
