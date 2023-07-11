@@ -2,6 +2,8 @@
 Basic C generic structs
 
 
+## Array
+
 ## List
 
 * Linked list
