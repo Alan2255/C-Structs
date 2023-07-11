@@ -345,6 +345,9 @@ CList clist_create() {
     return newList;
 }
 
+/**
+ * Add data to the circular list
+*/
 CList clist_add(CList list, void* data, ListOrder order, FunctionCopy copy) {
 
     // Create a new node
@@ -481,6 +484,51 @@ DCList dclist_add(DCList list, void* data, ListOrder order, FunctionCopy copy) {
         
         return newNode;
     }
+}
+
+
+/**
+ * Delete data in some order from the doubly circular list
+*/
+DCList dclist_delete(DCList list, ListOrder order, FunctionDestroy destroy) {
+
+    if (not list) return NULL;
+
+    // It has only one element
+    if (list->prev == list) {
+
+        // Delete data
+        destroy(list->data);
+        free(list);
+
+        return NULL;
+    }
+
+    // More than one element
+    else {
+
+        // If delete from the end
+        if (order == BACKWARD) {
+         
+            // Move to the new first
+            list = list->next;
+        }
+
+        // Auxiliar node to delete
+        DNode node = list->prev;
+        
+        // The new last links to the first
+        list->prev->prev->next = list;
+
+        // The first links to the new last
+        list->prev = list->prev->prev;
+
+        // Delete data
+        destroy(node->data);
+        free(node);
+    }
+
+    return list;
 }
 
 

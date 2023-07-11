@@ -167,31 +167,37 @@ typedef struct _CList {
 
 
 /**
- * Create an empty doubly list
+ * Create an empty circular list
 */
 CList clist_create();
 
 
 /**
- * Add data to the begin of the doubly list
+ * Add data to the circular list
 */
 CList clist_add(CList, void*, ListOrder, FunctionCopy);
 
 
 /**
- * Destroy the doubly list
+ * Delete data from the circular list
+*/
+void clist_delete(CList, ListOrder, FunctionDestroy);
+
+
+/**
+ * Destroy the circular list
 */
 void clist_destroy(CList, FunctionDestroy);
 
 
 /**
- * Print the doubly list
+ * Print the circular list
 */
 void clist_print(CList, FunctionVisit);
 
 
 /**
- * Return the length of the dlist
+ * Return the length of the circular list
 */
 int clist_length(CList);
 
@@ -212,6 +218,12 @@ DCList dclist_create();
  * Add data in some order to the doubly circular list
 */
 DCList dclist_add(DCList, void*, ListOrder, FunctionCopy);
+
+
+/**
+ * Delete data in some order from the doubly circular list
+*/
+DCList dclist_delete(DCList, ListOrder, FunctionDestroy);
 
 
 /**
