@@ -4,18 +4,22 @@
 /**
  * Create a heap with the given capacity
 */
-BHeap bheap_create(int capacity, FunctionCompare compare, PriorityType type) {
+BHeap bheap_create(int capacity, PriorityType type, FunctionCopy copy, FunctionDestroy destroy, FunctionCompare compare, FunctionVisit visit) {
     
     // Ask for memory to create the heap
-    BHeap newHeap = malloc(sizeof(*newHeap));
-    void **array = malloc(sizeof(void*) * (capacity + 1));
+    BHeap newHeap = malloc(sizeof(struct _BHeap));
+    newHeap->array = malloc(sizeof(void*) * (capacity + 1)); // +1 because heap[0] == NULL
 
-    newHeap->array = array;
     newHeap->capacity = capacity;
     newHeap->last = 0;
-    newHeap->compare = compare;
+
     newHeap->type = type;
     
+    newHeap->copy = copy;
+    newHeap->destroy = destroy;
+    newHeap->compare = compare;
+    newHeap->visit = visit;
+
     return newHeap;
 }
 
@@ -23,13 +27,13 @@ BHeap bheap_create(int capacity, FunctionCompare compare, PriorityType type) {
 /**
  * Destroy the heap
 */
-void bheap_destroy(BHeap heap, FunctionDestroy destroy) {
+void bheap_destroy(BHeap heap) {
     
-    if (!heap) return;
+    if (not heap) return;
     
     for (int i = 1; i <= heap->last; i++) {
     
-        destroy(heap->array[i]);
+        heap->destroy(heap->array[i]);
     }
     free(heap->array);
     free(heap);
@@ -57,27 +61,26 @@ int bheap_comparation(BHeap heap, void* a, void* b) {
 
 
 /**
- * Check if the given heap is empty, return 1 if its, 0 if it doesnt
- * and -1 if its NULL
+ * Check if the given heap is empty, return true if its, false otherwise
 */
 int bheap_is_empty(BHeap heap) {
 
-    if (!heap) return -1;
+    if (not heap) return false;
 
-    return (heap->last == 0 ? 1 : 0);
+    return (heap->last == 0 ? true : false);
 }
 
 
 /**
- * Travel through the heap apllying the given function to each element 
+ * Print the heap
 */
-void bheap_travel(BHeap heap, FunctionVisit visit) {
+void bheap_print(BHeap heap) {
 
-    if (!heap) return;
+    if (not heap) return;
     
     for (int i = 1; i <= heap->last; i++) {
 
-        visit(heap->array[i]);
+        heap->visit(heap->array[i]);
     }
 }
 
@@ -112,12 +115,12 @@ int bheap_climb(BHeap heap, int index) {
 /**
  * Insert the given data in the heap
 */
-void bheap_insert(BHeap heap, void* data, FunctionCopy copy) {
+void bheap_insert(BHeap heap, void* data) {
 
-    if (!heap) return;
+    if (not heap) return;
 
     // Put the element in the last position
-    heap->array[++heap->last] = copy(data);
+    heap->array[++heap->last] = heap->copy(data);
 
     // Let climb the last element
     bheap_climb(heap, heap->last);
@@ -131,7 +134,7 @@ void bheap_insert(BHeap heap, void* data, FunctionCopy copy) {
 */
 int bheap_fall(BHeap heap, int index) {
     
-    if (!heap) return 0;
+    if (not heap) return 0;
 
     void* aux;
     int k, canFall = true, swapHappend = false;
@@ -170,12 +173,12 @@ int bheap_fall(BHeap heap, int index) {
 /**
  * Delete the top of the heap
 */
-void bheap_pop(BHeap heap, FunctionDestroy destroy) {
+void bheap_pop(BHeap heap) {
     
-    if (!heap) return;
+    if (not heap) return;
 
     // Destroy the top and put the last element in place
-    destroy(heap->array[1]);
+    heap->destroy(heap->array[1]);
     heap->array[1] = heap->array[heap->last--];
 
     // Let fall the top of the heap
@@ -186,9 +189,9 @@ void bheap_pop(BHeap heap, FunctionDestroy destroy) {
 /**
  * Delete some given data from the heap
 */
-void bheap_delete(BHeap heap, void* data, FunctionDestroy destroy) {
+void bheap_delete(BHeap heap, void* data) {
 
-    if (!heap) return;
+    if (not heap) return;
 
     // Search data in the heap
     int i = 1, found = false;
@@ -206,7 +209,7 @@ void bheap_delete(BHeap heap, void* data, FunctionDestroy destroy) {
     if (found) {
 
         // Delete the data
-        destroy(heap->array[i]);
+        heap->destroy(heap->array[i]);
 
         // Replace it with the last element
         heap->array[i] = heap->array[heap->last];
@@ -221,34 +224,24 @@ void bheap_delete(BHeap heap, void* data, FunctionDestroy destroy) {
 /**
  * Return a new heap created from the given array
 */
-BHeap bheap_create_from_array(void** array, int length, FunctionCopy copy, FunctionCompare compare, PriorityType type) {
+BHeap bheap_create_from_array(void** array, int length, PriorityType type, FunctionCopy copy, FunctionDestroy destroy, FunctionCompare compare, FunctionVisit visit) {
     
-    if (!array) return NULL;
+    if (not array) return NULL;
 
-    // Ask memory for a new heap and array
-    BHeap newHeap = malloc(sizeof(*newHeap));
-    void** newArray = malloc(sizeof(void*) * (length + 1)); // +1 because heap[0] == NULL
-    
-    newHeap->capacity = length;
-    newHeap->last = length;
-    newHeap->compare = compare;
-    newHeap->type = type;
+    BHeap heap = bheap_create(length, type, copy, destroy, compare, visit);
 
     // Make a copy of the given array
-    newArray[0] = NULL;
+    heap->array[0] = NULL;
     int i = 0;
-    for (; i < length; i++) newArray[i+1] = copy(array[i]);
+    for (; i < length; i++) heap->array[i+1] = copy(array[i]);
 
-    // Put the array on the heap
-    newHeap->array = newArray;
-    
     // Try to go up with all the nodes
     while(i > 1) {
 
         // When the index cant climb anymore
-        if (not bheap_climb(newHeap, i))
+        if (not bheap_climb(heap, i))
             i--;
     }
 
-    return newHeap;
+    return heap;
 }

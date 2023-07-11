@@ -2,16 +2,13 @@
 #define __HEAP_H__
 
 #include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include "void.h"
 #include "sugar.h"
 
 
-/*
-Binary heap
+/**
+ * Heap type
 */
-
 typedef enum {
 
   MAX,  /* Maximun at the top */
@@ -20,39 +17,47 @@ typedef enum {
 } PriorityType;
 
 
+/**
+ * Binary heap
+*/
 typedef struct _BHeap {
 
-    void **array;
-    int capacity;
-    int last;
-    PriorityType type;
-    FunctionCompare compare;
+  void* *array;
+  int capacity;
+  int last;
+
+  PriorityType type;
+
+  FunctionCopy copy;
+  FunctionDestroy destroy;
+  FunctionCompare compare;
+  FunctionVisit visit;
 
 } *BHeap;
 
 
 /**
- * Create a heap with the given capacity and 
+ * Create an empty binary heap
 */
-BHeap bheap_create(int, FunctionCompare, PriorityType);
+BHeap bheap_create(int, PriorityType, FunctionCopy, FunctionDestroy, FunctionCompare, FunctionVisit);
 
 
 /**
  * Destroy the heap
 */
-void bheap_destroy(BHeap, FunctionDestroy);
+void bheap_destroy(BHeap);
 
 
 /**
- * Check if the heap is empty, return 1 if its and 0 otherwise
+ * Check if the heap is empty, return true if its, false otherwise
 */
 int bheap_is_empty(BHeap);
 
 
 /**
- * Travel through the heap apllying the given function to every element 
+ * Print the heap
 */
-void bheap_travel(BHeap, FunctionVisit);
+void bheap_print(BHeap);
 
 
 /**
@@ -66,7 +71,7 @@ int bheap_climb(BHeap, int);
 /**
  * Insert the given data in the heap
 */
-void bheap_insert(BHeap, void*, FunctionCopy);
+void bheap_insert(BHeap, void*);
 
 
 /**
@@ -80,19 +85,19 @@ int bheap_fall(BHeap, int);
 /**
  * Delete the top of the heap
 */
-void bheap_pop(BHeap, FunctionDestroy);
+void bheap_pop(BHeap);
 
 
 /**
  * Delete some given data from the heap
 */
-void bheap_delete(BHeap, void*, FunctionDestroy);
+void bheap_delete(BHeap, void*);
 
 
 /**
  * Return a new heap created from the given array
 */
-BHeap bheap_create_from_array(void**, int, FunctionCopy, FunctionCompare, PriorityType);
+BHeap bheap_create_from_array(void**, int, PriorityType, FunctionCopy, FunctionDestroy, FunctionCompare, FunctionVisit);
 
 
 #endif
