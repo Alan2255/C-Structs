@@ -11,6 +11,10 @@ Basic C generic structs
 * Circular linked list
 * Doubly circular linked list
 
+## Stack
+
+## Queue
+
 ## Tree
 
 * Binary tree
@@ -34,11 +38,3 @@ Basic C generic structs
 * Linear probing
 * Cuadratic probing
 * Double hashing
-
-## Stack
-
-* (to implement)
-
-## Queue
-
-* (to implement)
