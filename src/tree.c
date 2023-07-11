@@ -10,7 +10,7 @@
  * 
  * AVL tree
  * 
- * Tree
+ * General tree
 */
 
 
