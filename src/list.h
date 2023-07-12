@@ -60,13 +60,6 @@ int list_length(List);
 
 
 /**
- * Concatenates two lists
- * Modify the first list
-*/
-List list_concatenate(List, List, FunctionCopy);
-
-
-/**
  * Insert data at some given index in the list
 */
 List list_insert(List, void*, int, FunctionCopy);

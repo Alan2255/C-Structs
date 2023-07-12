@@ -75,35 +75,20 @@ int list_length(List list) {
 
 
 /**
- * Concatenates two lists
- * Modify the first list
- * (?)
-*/
-List list_concatenate(List list1, List list2, FunctionCopy copy) {
-
-    if (not list2) return list1;
-
-    list1 = list_add(list1, list2->data, copy);
-    
-    return list_concatenate(list1, list2->next, copy);
-}
-
-
-/**
  * Insert data at some given index in the list
 */
 List list_insert(List list, void* data, int index, FunctionCopy copy) {
 
-    // If there is no list or we want to insert at the begin
-    if (not list or index == 0)
-        return list_add(list, data, copy);
+    if (index < 0) return list;
+    if (index == 0) return list_add(list, data, copy);
 
-    // Otherwise we want to move through the list till the index (or the end)
     List node = list;
     for (int i = 0; i < index-1 and node->next != NULL; i++, node = node->next);
 
-    // Insert data
-    node->next = list_add(node->next, data, copy);
+    if (node->next exist) {
+
+        node->next = list_add(node->next, data, copy);
+    }
 
     return list;
 }
