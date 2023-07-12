@@ -79,9 +79,11 @@ int btree_height(BTree tree);
 typedef struct _BSTree {
 
   BTree root;
+  
   FunctionCopy copy;
   FunctionDestroy destroy;
   FunctionCompare compare;
+  FunctionVisit visit;
 
 } *BSTree;
 
@@ -89,7 +91,7 @@ typedef struct _BSTree {
 /**
  * Create an empty binary search tree
 */
-BSTree bstree_create(FunctionCopy, FunctionDestroy, FunctionCompare);
+BSTree bstree_create(FunctionCopy, FunctionDestroy, FunctionCompare, FunctionVisit);
 
 
 /**
@@ -117,6 +119,12 @@ void bstree_delete(BSTree, void*);
 
 
 /**
+ * Travel the binary search tree in some order
+*/
+void bstree_travel(BSTree, BTreeOrder);
+
+
+/**
  * AVL node
 */
 typedef struct _ANode {
@@ -138,6 +146,7 @@ typedef struct _AVLTree {
   FunctionCopy copy;
   FunctionDestroy destroy;
   FunctionCompare compare;
+  FunctionVisit visit;
 
 } *AVLTree;
 
@@ -145,7 +154,7 @@ typedef struct _AVLTree {
 /**
  * Create an empty AVL search tree
 */
-AVLTree avl_create(FunctionCopy, FunctionDestroy, FunctionCompare);
+AVLTree avl_create(FunctionCopy, FunctionDestroy, FunctionCompare, FunctionVisit);
 
 
 /**
@@ -175,7 +184,7 @@ void avl_delete(AVLTree, void*);
 /**
  * Print the avl tree
 */
-void avl_travel(AVLTree, BTreeOrder, FunctionVisit);
+void avl_travel(AVLTree, BTreeOrder);
 
 
 /**
@@ -217,7 +226,10 @@ void gtree_destroy(GTree);
 
 
 /**
- * Print the general tree by level
+ * Print the general tree
+ * 
+ * Like this:
+ * father - childs
 */
 void gtree_print(GTree);
 

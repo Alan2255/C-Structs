@@ -94,20 +94,48 @@ int btree_height(BTree tree) {
 
 
 /**
+ * Search data in the binary tree, return true if finds it, false otherwise
+*/
+int btree_search_bool(BTree tree, void* data, FunctionCompare compare) {
+
+    if (not tree) return false;
+
+    // Search in the root
+    if(compare(data, tree->data) == 0) {
+
+        return true;
+    }
+
+    // Search in the left subtree
+    else if (btree_search_bool(tree->left, data, compare) == true) {
+
+        return true;
+    }
+
+    // Search in the right subtree
+    else {
+
+        return btree_search_bool(tree->right, data, compare);
+    }
+}
+
+
+/**
  * Binary search tree
 */
 
 /**
  * Create an empty binary search tree
 */
-BSTree bstree_create(FunctionCopy copy, FunctionDestroy destroy, FunctionCompare compare) {
+BSTree bstree_create(FunctionCopy copy, FunctionDestroy destroy, FunctionCompare compare, FunctionVisit visit) {
 
     BSTree newTree = malloc(sizeof(struct _BSTree));
 
-    newTree->root = NULL;
+    newTree->root = btree_create();
     newTree->copy = copy;
     newTree->destroy = destroy;
     newTree->compare = compare;
+    newTree->visit = visit;
 
     return newTree;
 }
@@ -123,21 +151,21 @@ BTree bstree_insert_aux(BTree tree, void* data, FunctionCopy copy, FunctionCompa
         return btree_union(data, NULL, NULL, copy);
     }
 
-    // Check if needs to insert in the right subtree
+    // If data is greater
     if (compare(data, tree->data) > 0) {
 
         tree->right = bstree_insert_aux(tree->right, data, copy, compare);
         return tree;
     }
     
-    // Check if needs to insert in the left subtree
+    // If data is lower
     else if (compare(data, tree->data) < 0) {
 
         tree->left = bstree_insert_aux(tree->left, data, copy, compare);
         return tree;
     }
 
-    // Otherwise data is equal to the root
+    // Otherwise data is equal
     // If data already exist in the tree, do nothing
     return tree;
 }
@@ -169,25 +197,25 @@ void bstree_destroy(BSTree tree) {
 /**
  * Search data in the binary search tree, return true if finds it and false otherwise
 */
-int bstree_search_aux(BTree tree, void* data, FunctionCompare compare) {
+int bstree_search_aux_bool(BTree tree, void* data, FunctionCompare compare) {
 
     if (not tree) return false;
 
-    // If data is greater than root
+    // If data is greater
     if (compare(data, tree->data) > 0) {
 
         // Only search in the right subtree
-        return bstree_search_aux(tree->right, data, compare);
+        return bstree_search_aux_bool(tree->right, data, compare);
     }
 
-    // If data is lower than root
+    // If data is lower
     else if (compare(data, tree->data) < 0) {
 
         // Only search in the right subtree
-        return bstree_search_aux(tree->left, data, compare);
+        return bstree_search_aux_bool(tree->left, data, compare);
     }
 
-    // Otherwise data is equal to the root
+    // Otherwise data is equal
     else {
 
         return true;
@@ -196,13 +224,13 @@ int bstree_search_aux(BTree tree, void* data, FunctionCompare compare) {
 
 
 /**
- * Search data in the binary search tree, return true if finds it and false otherwise
+ * Search data in the binary search tree, return true if finds it, false otherwise
 */
-int bstree_search(BSTree tree, void* data) {
+int bstree_search_bool(BSTree tree, void* data) {
 
     if (not tree) return false;
 
-    return bstree_search_aux(tree->root, data, tree->compare);
+    return bstree_search_aux_bool(tree->root, data, tree->compare);
 }
 
 
@@ -232,21 +260,23 @@ BTree bstree_delete_aux(BTree tree, void* data, FunctionCompare compare, Functio
 
     if (not tree) return NULL;
 
-    // If its in the right subtree
+    // If data is greater
     if (compare(data, tree->data) > 0) {
 
+        // Only search in the right subtree
         tree->right = bstree_delete_aux(tree->right, data, compare, destroy);
         return tree;
     }
 
-    // If its in the right subtree
+    // If data is lower
     if (compare(data, tree->data) < 0) {
 
+        // Only search in the left subtree
         tree->left = bstree_delete_aux(tree->left, data, compare, destroy);
         return tree;
     }
 
-    // Data found
+    // Otherwise data is equal
     else {
 
         // If it has no subtrees
@@ -284,9 +314,11 @@ BTree bstree_delete_aux(BTree tree, void* data, FunctionCompare compare, Functio
         // Has both subtrees
         else {
             
+            // Search the previous node to the maximun of the minimuns
             destroy(tree->data);
             BTree previousMaxMin = previous_max_of_min(tree);
 
+            // If its the inmediate left
             if(not previousMaxMin->right) {
                 
                 tree->data = previousMaxMin->data;
@@ -294,6 +326,7 @@ BTree bstree_delete_aux(BTree tree, void* data, FunctionCompare compare, Functio
                 free(previousMaxMin);
             }
 
+            // Swap data
             else {
 
                 // Node to delete data and relink
@@ -318,6 +351,17 @@ void bstree_delete(BSTree tree, void* data) {
 
     tree->root = bstree_delete_aux(tree->root, data, tree->compare, tree->destroy);
 }
+
+
+/**
+ * Travel the binary search tree in some order
+*/
+void bstree_travel(BSTree tree, BTreeOrder order) {
+
+    if (not tree) return;
+
+    btree_travel(tree->root, order, tree->visit);
+} 
 
 
 /**
@@ -474,16 +518,18 @@ ATree avl_fix(ATree tree) {
 /**
  * Create an empty AVL search tree
 */
-AVLTree avl_create(FunctionCopy copy, FunctionDestroy destroy, FunctionCompare compare) {
+AVLTree avl_create(FunctionCopy copy, FunctionDestroy destroy, FunctionCompare compare, FunctionVisit visit) {
 
-    AVLTree tree = malloc(sizeof(struct _AVLTree));
+    AVLTree newTree = malloc(sizeof(struct _AVLTree));
 
-    tree->root = NULL;
-    tree->copy = copy;
-    tree->compare = compare;
-    tree->destroy = destroy;
+    newTree->root = NULL;
+    
+    newTree->copy = copy;
+    newTree->compare = compare;
+    newTree->destroy = destroy;
+    newTree->visit = visit;
 
-    return tree;
+    return newTree;
 }
 
 
@@ -774,11 +820,11 @@ void avl_travel_aux(ATree tree, BTreeOrder order, FunctionVisit visit) {
 /**
  * Travel through the AVL tree in some order
 */
-void avl_travel(AVLTree tree, BTreeOrder order, FunctionVisit visit) {
+void avl_travel(AVLTree tree, BTreeOrder order) {
 
     if (not tree) return;
 
-    avl_travel_aux(tree->root, order, visit);
+    avl_travel_aux(tree->root, order, tree->visit);
 }
 
 
@@ -825,7 +871,6 @@ void gtree_destroy(GTree tree) {
 
     if (not tree) return;
 
-    // Destroy all nodes
     gtree_destroy_aux(tree->root, tree->destroy);
     free(tree);
 }
@@ -839,6 +884,7 @@ void gtree_print_aux(GNode tree, FunctionVisit visit) {
     if (not tree) return;
     if (not tree->child) return;
 
+    // Print the father
     visit(tree->data);
     printf("- ");
 
@@ -860,6 +906,9 @@ void gtree_print_aux(GNode tree, FunctionVisit visit) {
 
 /**
  * Print the general tree
+ * 
+ * Like this:
+ * father - childs
 */
 void gtree_print(GTree tree) {
 
