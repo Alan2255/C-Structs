@@ -1,4 +1,3 @@
-// Author: Alan Hergenreder
 #include "string.h"
 
 /**
