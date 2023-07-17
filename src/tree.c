@@ -127,9 +127,9 @@ int btree_search_bool(BTree tree, void* data, FunctionCompare compare) {
 /**
  * Create an empty binary search tree
 */
-BSTree bstree_create(FunctionCopy copy, FunctionDestroy destroy, FunctionCompare compare, FunctionVisit visit) {
+BST bst_create(FunctionCopy copy, FunctionDestroy destroy, FunctionCompare compare, FunctionVisit visit) {
 
-    BSTree newTree = malloc(sizeof(struct _BSTree));
+    BST newTree = malloc(sizeof(struct _BST));
 
     newTree->root = btree_create();
     newTree->copy = copy;
@@ -144,7 +144,7 @@ BSTree bstree_create(FunctionCopy copy, FunctionDestroy destroy, FunctionCompare
 /**
  * Return a binary search tree after insert data
 */
-BTree bstree_insert_aux(BTree tree, void* data, FunctionCopy copy, FunctionCompare compare) {
+BTree bst_add_aux(BTree tree, void* data, FunctionCopy copy, FunctionCompare compare) {
 
     if (not tree) {
 
@@ -154,14 +154,14 @@ BTree bstree_insert_aux(BTree tree, void* data, FunctionCopy copy, FunctionCompa
     // If data is greater
     if (compare(data, tree->data) > 0) {
 
-        tree->right = bstree_insert_aux(tree->right, data, copy, compare);
+        tree->right = bst_add_aux(tree->right, data, copy, compare);
         return tree;
     }
     
     // If data is lower
     else if (compare(data, tree->data) < 0) {
 
-        tree->left = bstree_insert_aux(tree->left, data, copy, compare);
+        tree->left = bst_add_aux(tree->left, data, copy, compare);
         return tree;
     }
 
@@ -174,18 +174,18 @@ BTree bstree_insert_aux(BTree tree, void* data, FunctionCopy copy, FunctionCompa
 /**
  * Insert data in the binary search tree
 */
-void bstree_insert(BSTree tree, void* data) {
+void bst_add(BST tree, void* data) {
 
     if (not tree) return;
 
-    tree->root = bstree_insert_aux(tree->root, data, tree->copy, tree->compare);
+    tree->root = bst_add_aux(tree->root, data, tree->copy, tree->compare);
 }
 
 
 /**
  * Destroy the binary search tree
 */
-void bstree_destroy(BSTree tree) {
+void bst_destroy(BST tree) {
 
     if (not tree) return;
 
@@ -197,7 +197,7 @@ void bstree_destroy(BSTree tree) {
 /**
  * Search data in the binary search tree, return true if finds it and false otherwise
 */
-int bstree_search_aux_bool(BTree tree, void* data, FunctionCompare compare) {
+int bst_search_aux_bool(BTree tree, void* data, FunctionCompare compare) {
 
     if (not tree) return false;
 
@@ -205,14 +205,14 @@ int bstree_search_aux_bool(BTree tree, void* data, FunctionCompare compare) {
     if (compare(data, tree->data) > 0) {
 
         // Only search in the right subtree
-        return bstree_search_aux_bool(tree->right, data, compare);
+        return bst_search_aux_bool(tree->right, data, compare);
     }
 
     // If data is lower
     else if (compare(data, tree->data) < 0) {
 
         // Only search in the right subtree
-        return bstree_search_aux_bool(tree->left, data, compare);
+        return bst_search_aux_bool(tree->left, data, compare);
     }
 
     // Otherwise data is equal
@@ -226,11 +226,11 @@ int bstree_search_aux_bool(BTree tree, void* data, FunctionCompare compare) {
 /**
  * Search data in the binary search tree, return true if finds it, false otherwise
 */
-int bstree_search_bool(BSTree tree, void* data) {
+int bst_search_bool(BST tree, void* data) {
 
     if (not tree) return false;
 
-    return bstree_search_aux_bool(tree->root, data, tree->compare);
+    return bst_search_aux_bool(tree->root, data, tree->compare);
 }
 
 
@@ -256,7 +256,7 @@ BTree previous_max_of_min(BTree tree) {
 /**
  * Delete data from the binary search tree if exist on it
 */
-BTree bstree_delete_aux(BTree tree, void* data, FunctionCompare compare, FunctionDestroy destroy) {
+BTree bst_delete_aux(BTree tree, void* data, FunctionCompare compare, FunctionDestroy destroy) {
 
     if (not tree) return NULL;
 
@@ -264,7 +264,7 @@ BTree bstree_delete_aux(BTree tree, void* data, FunctionCompare compare, Functio
     if (compare(data, tree->data) > 0) {
 
         // Only search in the right subtree
-        tree->right = bstree_delete_aux(tree->right, data, compare, destroy);
+        tree->right = bst_delete_aux(tree->right, data, compare, destroy);
         return tree;
     }
 
@@ -272,7 +272,7 @@ BTree bstree_delete_aux(BTree tree, void* data, FunctionCompare compare, Functio
     if (compare(data, tree->data) < 0) {
 
         // Only search in the left subtree
-        tree->left = bstree_delete_aux(tree->left, data, compare, destroy);
+        tree->left = bst_delete_aux(tree->left, data, compare, destroy);
         return tree;
     }
 
@@ -345,18 +345,18 @@ BTree bstree_delete_aux(BTree tree, void* data, FunctionCompare compare, Functio
 /**
  * Delete data from the binary search tree if exist on it
 */
-void bstree_delete(BSTree tree, void* data) {
+void bst_delete(BST tree, void* data) {
 
     if (not tree) return;
 
-    tree->root = bstree_delete_aux(tree->root, data, tree->compare, tree->destroy);
+    tree->root = bst_delete_aux(tree->root, data, tree->compare, tree->destroy);
 }
 
 
 /**
  * Travel the binary search tree in some order
 */
-void bstree_travel(BSTree tree, BTreeOrder order) {
+void bst_travel(BST tree, BTreeOrder order) {
 
     if (not tree) return;
 
@@ -518,9 +518,9 @@ ATree avl_fix(ATree tree) {
 /**
  * Create an empty AVL search tree
 */
-AVLTree avl_create(FunctionCopy copy, FunctionDestroy destroy, FunctionCompare compare, FunctionVisit visit) {
+AVL avl_create(FunctionCopy copy, FunctionDestroy destroy, FunctionCompare compare, FunctionVisit visit) {
 
-    AVLTree newTree = malloc(sizeof(struct _AVLTree));
+    AVL newTree = malloc(sizeof(struct _AVL));
 
     newTree->root = NULL;
     
@@ -536,12 +536,12 @@ AVLTree avl_create(FunctionCopy copy, FunctionDestroy destroy, FunctionCompare c
 /**
  * Insert data in the AVL tree
 */
-ATree avl_insert_aux(ATree tree, void* data, FunctionCopy copy, FunctionCompare compare) {
+ATree avl_add_aux(ATree tree, void* data, FunctionCopy copy, FunctionCompare compare) {
 
     if (not tree) {
 
         // Create new node in the tree
-        ATree newNode = malloc(sizeof(struct _ANode));
+        ATree newNode = malloc(sizeof(struct _ATree));
         
         newNode->data = copy(data);
         newNode->height = 1;
@@ -555,7 +555,7 @@ ATree avl_insert_aux(ATree tree, void* data, FunctionCopy copy, FunctionCompare 
     if (compare(data, tree->data) > 0) {
 
         // Try to insert in the right subtree
-        tree->right = avl_insert_aux(tree->right, data, copy, compare);
+        tree->right = avl_add_aux(tree->right, data, copy, compare);
 
         // Update height
         tree->height = avl_height(tree);
@@ -574,7 +574,7 @@ ATree avl_insert_aux(ATree tree, void* data, FunctionCopy copy, FunctionCompare 
     else if (compare(data, tree->data) < 0) {
 
         // Try to insert in the left subtree
-        tree->left = avl_insert_aux(tree->left, data, copy, compare);
+        tree->left = avl_add_aux(tree->left, data, copy, compare);
 
         // Update height
         tree->height = avl_height(tree);
@@ -597,12 +597,12 @@ ATree avl_insert_aux(ATree tree, void* data, FunctionCopy copy, FunctionCompare 
 /**
  * Insert data in the AVL tree
 */
-void avl_insert(AVLTree tree, void* data) {
+void avl_add(AVL tree, void* data) {
 
     if (not tree) return;
 
     // Insert data
-    tree->root = avl_insert_aux(tree->root, data, tree->copy, tree->compare);
+    tree->root = avl_add_aux(tree->root, data, tree->copy, tree->compare);
 }
 
 
@@ -624,7 +624,7 @@ void avl_destroy_aux(ATree tree, FunctionDestroy destroy) {
 /**
  * Destroy the AVL tree
 */
-void avl_destroy(AVLTree tree) {
+void avl_destroy(AVL tree) {
 
     if (not tree) return;
 
@@ -665,7 +665,7 @@ int avl_search_bool_aux(ATree tree, void* data, FunctionCompare compare) {
 /**
  * Search data in the AVL tree, return true if finds it and false otherwise
 */
-int avl_search_bool(AVLTree tree, void* data) {
+int avl_search_bool(AVL tree, void* data) {
 
     if (not tree) return false;
 
@@ -783,7 +783,7 @@ ATree avl_delete_aux(ATree tree, void* data, FunctionCompare compare, FunctionDe
 /**
  * Delete data from the AVL tree if exist in it
 */
-void avl_delete(AVLTree tree, void* data) {
+void avl_delete(AVL tree, void* data) {
 
     if (not tree) return;
 
@@ -820,7 +820,7 @@ void avl_travel_aux(ATree tree, BTreeOrder order, FunctionVisit visit) {
 /**
  * Travel through the AVL tree in some order
 */
-void avl_travel(AVLTree tree, BTreeOrder order) {
+void avl_travel(AVL tree, BTreeOrder order) {
 
     if (not tree) return;
 

@@ -76,7 +76,7 @@ int btree_height(BTree tree);
 /**
  * Binary search tree
 */
-typedef struct _BSTree {
+typedef struct _BST {
 
   BTree root;
   
@@ -85,54 +85,54 @@ typedef struct _BSTree {
   FunctionCompare compare;
   FunctionVisit visit;
 
-} *BSTree;
+} *BST;
 
 
 /**
  * Create an empty binary search tree
 */
-BSTree bstree_create(FunctionCopy, FunctionDestroy, FunctionCompare, FunctionVisit);
+BST bst_create(FunctionCopy, FunctionDestroy, FunctionCompare, FunctionVisit);
 
 
 /**
  * Insert data in the binary search tree
 */
-void bstree_insert(BSTree, void*);
+void bst_add(BST, void*);
 
 
 /**
  * Destroy the binary search tree
 */
-void bstree_destroy(BSTree);
+void bst_destroy(BST);
 
 
 /**
  * Search data in the binary search tree, return true if finds it and false otherwise
 */
-int bstree_search(BSTree, void*);
+int bst_search(BST, void*);
 
 
 /**
  * Delete data from the binary search tree if exist in it
 */
-void bstree_delete(BSTree, void*);
+void bst_delete(BST, void*);
 
 
 /**
  * Travel the binary search tree in some order
 */
-void bstree_travel(BSTree, BTreeOrder);
+void bst_travel(BST, BTreeOrder);
 
 
 /**
  * AVL node
 */
-typedef struct _ANode {
+typedef struct _ATree {
 
   void* data;
   int height;
-  struct _ANode* left;
-  struct _ANode* right;
+  struct _ATree* left;
+  struct _ATree* right;
 
 } *ATree;
 
@@ -140,7 +140,7 @@ typedef struct _ANode {
 /**
  * AVL tree
 */
-typedef struct _AVLTree {
+typedef struct _AVL {
 
   ATree root;
   FunctionCopy copy;
@@ -148,43 +148,43 @@ typedef struct _AVLTree {
   FunctionCompare compare;
   FunctionVisit visit;
 
-} *AVLTree;
+} *AVL;
 
 
 /**
  * Create an empty AVL search tree
 */
-AVLTree avl_create(FunctionCopy, FunctionDestroy, FunctionCompare, FunctionVisit);
+AVL avl_create(FunctionCopy, FunctionDestroy, FunctionCompare, FunctionVisit);
 
 
 /**
  * Insert data in the AVL tree
 */
-void avl_insert(AVLTree, void*);
+void avl_add(AVL, void*);
 
 
 /**
  * Destroy the AVL tree
 */
-void avl_destroy(AVLTree);
+void avl_destroy(AVL);
 
 
 /**
  * Search data in the AVL tree, return true if finds it and false otherwise
 */
-int avl_search_bool(AVLTree, void*);
+int avl_search_bool(AVL, void*);
 
 
 /**
  * Delete data from the AVL tree if exist in it
 */
-void avl_delete(AVLTree, void*);
+void avl_delete(AVL, void*);
 
 
 /**
  * Print the avl tree
 */
-void avl_travel(AVLTree, BTreeOrder);
+void avl_travel(AVL, BTreeOrder);
 
 
 /**
