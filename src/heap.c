@@ -114,7 +114,7 @@ int bheap_climb(BHeap heap, int index) {
 /**
  * Insert the given data in the binary heap
 */
-void bheap_insert(BHeap heap, void* data) {
+void bheap_add(BHeap heap, void* data) {
 
     if (not heap) return;
 

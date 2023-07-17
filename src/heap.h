@@ -70,7 +70,7 @@ int bheap_climb(BHeap, int);
 /**
  * Insert the given data in the binary heap
 */
-void bheap_insert(BHeap, void*);
+void bheap_add(BHeap, void*);
 
 
 /**
