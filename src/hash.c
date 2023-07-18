@@ -190,6 +190,21 @@ void hash_oc_destroy(HashOC table) {
 
 
 /**
+ * Search given data on the hash table, return data if its found, NULL otherwise
+ */
+void* hash_oc_search(HashOC table, void* data) {
+
+    if (not table) return NULL;
+
+    // Calculate key of data
+    int idx = table->hash(data) % table->capacity;
+
+    // Search data
+    return list_search_data(table->array[idx], data, table->compare);
+}
+
+
+/**
  * Insert given data in the table managing collisions with separate chaning
  */
 void hash_oc_insert(HashOC table, void* data) {
@@ -235,21 +250,6 @@ void hash_oc_insert(HashOC table, void* data) {
             table->stuffed++;
         }
     }
-}
-
-
-/**
- * Search given data on the hash table, return data if its found, NULL otherwise
- */
-void* hash_oc_search(HashOC table, void* data) {
-
-    if (not table) return NULL;
-
-    // Calculate key of data
-    int idx = table->hash(data) % table->capacity;
-
-    // Search data
-    return list_search_data(table->array[idx], data, table->compare);
 }
 
 
@@ -415,6 +415,27 @@ void hash_ml_destroy(HashML table) {
 
 
 /**
+ * Search given data on the hash table, return data if its found, NULL otherwise
+ */
+void* hash_ml_search(HashML table, void* data) {
+
+    if (not table) return NULL;
+    
+    // Calculate key of data
+    int idx = table->hash(data) % table->capacity;
+
+    // Cell to go through the table
+    ML_Cell cell = table->array[idx];
+
+    // Search data
+    for (; cell exist and cell->data exist and table->compare(cell->data, data) != 0; cell = cell->next);
+
+    // Return it it exist
+    return cell exist ? cell->data : NULL;
+}
+
+
+/**
  * Insert given data in the table managing collisions with separate chaning
  */
 void hash_ml_insert(HashML table, void* data) {
@@ -431,11 +452,8 @@ void hash_ml_insert(HashML table, void* data) {
     // Calculate key of data
     int idx = table->hash(data) % table->capacity;
 
-    // Search data in the table
-    void* dataSearch = hash_ml_search(table, data);
-
-    // If already exist in the table
-    if (dataSearch exist) {
+    // If data already exist in the table
+    if (hash_ml_search(table, data) exist) {
 
         // Search data
         ML_Cell cell = table->array[idx];
@@ -446,7 +464,7 @@ void hash_ml_insert(HashML table, void* data) {
         cell->data = table->copy(data);
     }
 
-    // If doesnt exist in the table
+    // If data doesnt exist in the table
     else {
 
         // If the cell its empty
@@ -497,27 +515,6 @@ void hash_ml_insert(HashML table, void* data) {
 
 
 /**
- * Search given data on the hash table, return data if its found, NULL otherwise
- */
-void* hash_ml_search(HashML table, void* data) {
-
-    if (not table) return NULL;
-    
-    // Calculate key of data
-    int idx = table->hash(data) % table->capacity;
-
-    // Cell to go through the table
-    ML_Cell cell = table->array[idx];
-
-    // Search data
-    for (; cell exist and cell->data exist and table->compare(cell->data, data) != 0; cell = cell->next);
-
-    // Return it it exist
-    return cell exist ? cell->data : NULL;
-}
-
-
-/**
  * Delete given data from the hash table if exist on it
  */
 void hash_ml_delete(HashML table, void* data) {
@@ -527,11 +524,8 @@ void hash_ml_delete(HashML table, void* data) {
     // Calculate key of data
     int idx = table->hash(data) % table->capacity;
 
-    // Search data
-    void* dataSearch = hash_ml_search(table, data);
-
     // If data exist in the table
-    if (dataSearch exist) {
+    if (hash_ml_search(table, data) exist) {
 
         // As data is in the table, we know that in the end we are gonna delete it
         table->stuffed--;
@@ -554,7 +548,7 @@ void hash_ml_delete(HashML table, void* data) {
                 cell->next = NULL;
             }
 
-            // If there is no link we put NULL in next cell
+            // If there is no link put NULL in next cell
             else {
 
                 table->array[idx]->next = NULL;
@@ -597,6 +591,7 @@ void hash_ml_rehash(HashML table) {
     ML_Cell *oldArray = table->array;
 
     // Get the new array double size
+    table->stuffed = 0;
     table->capacity = table->capacity * 2;
     table->array = malloc(sizeof(ML_Cell) * table->capacity);
 
@@ -609,7 +604,6 @@ void hash_ml_rehash(HashML table) {
     }
 
     // Insert all elements again
-    table->stuffed = 0;
     for (int i = 0; i < table->capacity / 2; i++) {
 
         if (oldArray[i]->data exist) {
@@ -728,6 +722,36 @@ void hash_p_destroy(HashP table) {
 
 
 /**
+ * Search given data on the hash table, return data if its found, NULL otherwise
+ */
+void* hash_p_search(HashP table, void* data) {
+
+    if (not table) return NULL;
+
+    // Calculate key of data
+    int probing = table->hash(data) % table->capacity;
+
+    // Search data by probing
+    for (int limit = 0, i = 0; 
+        limit < table->capacity and
+        ((table->array[probing].data exist and table->compare(table->array[probing].data, data) != 0) or
+        table->array[probing].deleted);
+        probing = hash_probing(probing, i, table->capacity, table->probing), i++, limit++);
+    
+    // Data found
+    if (table->array[probing].data exist and table->compare(table->array[probing].data, data) == 0) {
+        
+        return table->array[probing].data;
+    }
+    // Data not found
+    else {
+        
+        return NULL;
+    }
+}
+
+
+/**
  * Insert given data in the table managing collisions with separate chaning
  */
 void hash_p_insert(HashP table, void* data) {
@@ -744,11 +768,8 @@ void hash_p_insert(HashP table, void* data) {
     // Calculate key of data
     int probing = table->hash(data) % table->capacity;
 
-    // Search data in the table
-    void* dataSearch = hash_p_search(table, data);
-
-    // If data is already in the table
-    if (dataSearch exist) {
+    // If data already exist in the table
+    if (hash_p_search(table, data) exist) {
 
         // Search data to replace by probing
         for (int i = 1; table->array[probing].deleted or table->compare(table->array[probing].data, data) != 0; 
@@ -775,36 +796,6 @@ void hash_p_insert(HashP table, void* data) {
 
 
 /**
- * Search given data on the hash table, return data if its found, NULL otherwise
- */
-void* hash_p_search(HashP table, void* data) {
-
-    if (not table) return NULL;
-
-    // Calculate key of data
-    int probing = table->hash(data) % table->capacity;
-
-    // Search data by probing
-    for (int maxProbing = 0, i = 0; 
-        maxProbing < table->capacity and
-        ((table->array[probing].data exist and table->compare(table->array[probing].data, data) != 0) or
-        table->array[probing].deleted);
-        probing = hash_probing(probing, i, table->capacity, table->probing), i++, maxProbing++);
-    
-    // Data found
-    if (table->array[probing].data exist and table->compare(table->array[probing].data, data) == 0) {
-        
-        return table->array[probing].data;
-    }
-    // Data not found
-    else {
-        
-        return NULL;
-    }
-}
-
-
-/**
  * Delete given data from the hash table if exist on it
  */
 void hash_p_delete(HashP table, void* data) {
@@ -814,11 +805,8 @@ void hash_p_delete(HashP table, void* data) {
     // Calculate key of data
     int probing = table->hash(data) % table->capacity;
 
-    // Search data in the table
-    void* dataSearch = hash_p_search(table, data);
-
-    // If data exist in the table
-    if (dataSearch exist) {
+    // If data already exist in the table
+    if (hash_p_search(table, data) exist) {
 
         // Search data to replace by probing
         for (int i = 1; table->array[probing].deleted or table->compare(table->array[probing].data, data) != 0; 
