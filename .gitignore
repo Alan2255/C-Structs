@@ -1,3 +1,7 @@
+# Hash colission by mixed list
+hash_mixed.c
+hash_mixed.h
+
 # Main and executable
 main.c
 main
