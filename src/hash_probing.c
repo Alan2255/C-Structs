@@ -144,6 +144,60 @@ void* hash_search(Hash table, void* data) {
 
         return NULL;
     }
+}
+
+
+/**
+ * Search given data in the hash table 
+ * Return index of the table if found, 
+ * otherwise return the index of the first free cell
+*/
+int hash_search_idx(Hash table, void* data) {
+
+    if (not table) return -1;
+
+    // Calculate key of data
+    int idx = table->hash(data) % table->capacity;
+
+    // Save the index of the first deleted cell
+    int first_deleted = idx;
+
+    // Search data by probing
+    for (int limit = 0, i = 0;
+        limit < table->capacity and (table->array[idx]->deleted or
+        (table->array[idx]->data exist and table->compare(table->array[idx]->data, data) != 0));
+        limit++, idx = probing(idx, ++i, table->capacity, table->type)) {
+
+            if (table->array[first_deleted]->data exist and not table->array[idx]->data) {
+                first_deleted = idx;
+            }
+        }
+
+    
+    // If data found
+    if (table->array[idx]->data exist and table->compare(table->array[idx]->data, data) == 0) {
+
+        // Return index of data
+        return idx;
+    }
+
+    // Data doesnt found
+    else {
+
+        // If there was some cell deleted
+        if (table->array[first_deleted]->deleted) {
+
+            // Return the index of the first deleted cell
+            return first_deleted;
+        }
+        
+        // There wasnt deleted cells
+        else {
+
+            // Return the index of the first empty cell
+            return idx;
+        }
+    }
 } 
 
 
@@ -161,17 +215,11 @@ void hash_add(Hash table, void* data) {
         hash_rehash(table);
     }
 
-    // Calculate key of data
-    int idx = table->hash(data) % table->capacity;
+    // Search index of data in the table
+    int idx = hash_search_idx(table, data);
 
     // If data already exist in the table
-    if (hash_search(table, data) exist) {
-
-        // Search data by probing
-        for (int i = 0;
-            table->array[idx]->deleted or 
-            (table->array[idx]->data exist and table->compare(table->array[idx]->data, data) != 0);
-            idx = probing(idx, ++i, table->capacity, table->type));
+    if (table->array[idx]->data exist) {
 
         // Destroy to replace without lose memory
         table->destroy(table->array[idx]->data);
@@ -183,9 +231,6 @@ void hash_add(Hash table, void* data) {
     // If data doesnt exist in the table
     else {
 
-        // Search an empty cell by probing
-        for (int i = 0; table->array[idx]->data exist; idx = probing(idx, ++i, table->capacity, table->type));
-    
         // Add data
         table->array[idx]->data = table->copy(data);
         table->array[idx]->deleted = false;
@@ -201,17 +246,11 @@ void hash_delete(Hash table, void* data) {
 
     if (not table) return;
 
+    // Search index of data in the table
+    int idx = hash_search_idx(table, data);
+
     // If data already exist in the hash table
-    if (hash_search(table, data) exist) {
-
-        // Calculate key of data
-        int idx = table->hash(data) % table->capacity;
-
-        // Search data by probing
-        for (int i = 0;
-            table->array[idx]->deleted or 
-            (table->array[idx]->data exist and table->compare(table->array[idx]->data, data) != 0);
-            idx = probing(idx, ++i, table->capacity, table->type));
+    if (table->array[idx]->data exist) {
 
         // Delete data
         table->destroy(table->array[idx]->data);
@@ -220,6 +259,16 @@ void hash_delete(Hash table, void* data) {
         table->stuffed--;
     }    
 } 
+
+
+/**
+ * Auxiliar "copy" function to rehash
+ * (do not copy actually)
+*/
+void* pointer(void* data) {
+
+    return data;
+}
 
 
 void hash_rehash(Hash table) {
@@ -243,6 +292,11 @@ void hash_rehash(Hash table) {
         table->array[i]->deleted = false;
     }
 
+    // Save the copy function
+    FunctionCopy copy = table->copy;
+
+    table->copy = pointer;
+
     // Rehash each element
     for (int i = 0; i < table->capacity / 2; i++) {
 
@@ -251,14 +305,14 @@ void hash_rehash(Hash table) {
 
             // Rehash
             hash_add(table, oldArray[i]->data);
-
-            // Delete from the old array
-            table->destroy(oldArray[i]->data);
         }
 
         // Free old cell
         free(oldArray[i]);
     }
+
+    // Get the copy function back
+    table->copy = copy;
 
     // Free old array
     free(oldArray);

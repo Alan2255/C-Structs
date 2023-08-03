@@ -79,43 +79,43 @@ typedef struct _Hash {
 /**
  * Create an empty hash table
 */
-Hash hash_create(int capacity, ProbingType type, FunctionCopy copy, FunctionDestroy destroy, FunctionCompare compare, FunctionVisit visit, FunctionHash hash);
+Hash hash_create(int, ProbingType, FunctionCopy, FunctionDestroy, FunctionCompare, FunctionVisit, FunctionHash);
 
 
 /**
  * Destroy the hash table
 */
-void hash_destroy(Hash table);
+void hash_destroy(Hash);
 
 
 /**
  * Return the capacity of the hash table
  */
-int hash_capacity(Hash table);
+int hash_capacity(Hash);
 
 
 /**
  * Return the amount of stuffed cells in the hash table
  */
-int hash_stuffed(Hash table);
+int hash_stuffed(Hash);
 
 
 /**
  * Search given data in the hash table
 */
-void* hash_search(Hash table, void* data);
+void* hash_search(Hash, void*);
 
 
 /**
  * Add given data to the hash table
 */
-void hash_add(Hash table, void* data);
+void hash_add(Hash, void*);
 
 
 /**
  * Delete given data from the hash table
 */
-void hash_delete(Hash table, void* data);
+void hash_delete(Hash, void*);
 
 
 /**
